@@ -22,6 +22,7 @@ MAX_DESCRIPTION = 4000
 
 def import_products(env, store, payload, job=None):
     """Import products modified after the store watermark."""
+    started = fields.Datetime.now()
     client = store._get_client()
     params = {'orderby': 'id', 'order': 'asc', 'status': 'any'}
     watermark = payload.get('modified_after')
@@ -40,7 +41,9 @@ def import_products(env, store, payload, job=None):
                 store, exc, job=job, res_model='product.template',
                 payload='product %s' % data.get('id'),
             )
-    store.write({'last_product_sync': fields.Datetime.now()})
+    # The watermark is the moment the poll started: a product changed while the
+    # poll was running is picked up by the next run instead of being lost.
+    store.write({'last_product_sync': started})
     env['woo.log'].sudo().log(store, 'info', 'Imported %s products.' % count)
     return count
 

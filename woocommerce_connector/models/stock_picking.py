@@ -28,16 +28,14 @@ class StockPicking(models.Model):
         sale = picking.sale_id
         if not sale:
             return False
-        store = self.env['woo.store'].sudo().search([
-            ('active', '=', True), ('push_tracking', '=', True),
-        ], limit=1)
-        if not store:
-            return False
         mapping = self.env['woo.order.mapping'].sudo().search([
-            ('store_id', '=', store.id), ('order_id', '=', sale.id),
+            ('order_id', '=', sale.id),
+            ('store_id.active', '=', True),
+            ('store_id.push_tracking', '=', True),
         ], limit=1)
         if not mapping:
             return False
+        store = mapping.store_id
         store._enqueue(
             'fulfilment_push', {'picking_id': picking.id},
             res_model='stock.picking', res_id=picking.id, priority=5,

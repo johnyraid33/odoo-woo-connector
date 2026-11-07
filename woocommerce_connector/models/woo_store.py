@@ -276,11 +276,16 @@ class WooStore(models.Model):
                 'Webhooks require a public HTTPS address. Configure web.base.url '
                 'with the public Odoo address first (current value: %s).' % url
             )
-        existing = client.list_webhooks(per_page=100)
-        existing_urls = {item.get('delivery_url') for item in existing or []}
+        existing = client.list_webhooks(per_page=100) or []
+        registered = {
+            (item.get('delivery_url'), item.get('topic'))
+            for item in existing
+        }
         created = []
         for topic in DEFAULT_WEBHOOK_TOPICS:
-            if url in existing_urls:
+            # Only the topic that is still missing is created; a second press of
+            # the button used to skip every topic as soon as one existed.
+            if (url, topic) in registered:
                 continue
             try:
                 hook = client.create_webhook(

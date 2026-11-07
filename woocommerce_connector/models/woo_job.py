@@ -174,6 +174,14 @@ class WooJob(models.Model):
         self.env['woo.log'].sudo().log_error(
             self.store_id, exc, job=self, res_model=self.res_model, res_id=self.res_id,
         )
+        if self.res_model == 'woo.webhook' and self.res_id:
+            webhook = self.env['woo.webhook'].sudo().browse(self.res_id)
+            if webhook.exists() and self.state == 'failed':
+                webhook.write({
+                    'state': 'failed',
+                    'error': message[:20000],
+                    'processed_at': fields.Datetime.now(),
+                })
 
     # ----------------------------------------------------------------- buttons
     def action_retry(self):

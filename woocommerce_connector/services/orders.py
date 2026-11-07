@@ -23,6 +23,7 @@ _logger = logging.getLogger(__name__)
 
 def import_orders(env, store, payload, job=None):
     """Import orders modified after the last successful poll."""
+    started = fields.Datetime.now()
     client = store._get_client()
     params = {'orderby': 'id', 'order': 'asc', 'status': 'any'}
     watermark = payload.get('modified_after')
@@ -40,7 +41,7 @@ def import_orders(env, store, payload, job=None):
                 store, exc, job=job, res_model='sale.order',
                 payload='order %s' % data.get('id'),
             )
-    store.write({'last_order_sync': fields.Datetime.now()})
+    store.write({'last_order_sync': started})
     env['woo.log'].sudo().log(store, 'info', 'Imported %s orders.' % count)
     return count
 
@@ -327,6 +328,8 @@ def _to_float(value):
 # --------------------------------------------------------------------- refunds
 def import_refunds(env, store, payload, job=None):
     """Import refunds of one order as credit notes when the order is invoiced."""
+    if not store.sync_refunds:
+        return 0
     order_id = payload.get('order_id')
     if not order_id:
         return 0
@@ -367,7 +370,10 @@ def import_refund(env, store, order_data, refund_ref, client):
 
     reference = 'WooCommerce refund %s' % refund.get('id')
     existing = env['account.move'].sudo().search([
-        ('move_type', '=', 'out_refund'), ('ref', '=', reference),
+        ('move_type', '=', 'out_refund'),
+        ('ref', '=', reference),
+        ('invoice_origin', '=', order.name),
+        ('company_id', '=', store.company_id.id),
     ], limit=1)
     if existing:
         return existing

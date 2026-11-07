@@ -46,8 +46,9 @@ Webhooks are therefore a latency optimisation, never the source of truth:
 The single most expensive class of bug in commerce connectors.
 
 1. The store setting prices entered with tax is read from WooCommerce, never assumed.
-2. Prices are converted with the Odoo tax engine (compute_all), so group, compound and
-   fixed taxes behave exactly as they do for a normal Odoo sale order.
+2. When the store enters prices with tax, the gross amount WooCommerce charged is
+   converted to net with the matched rates; Odoo then computes the tax with its own
+   engine, so group, compound and fixed taxes behave as in any other sale order.
 3. Tax-inclusive shipping and fee lines are converted from the gross amount WooCommerce
    actually charged, not from a recomputed net.
 4. After importing an order the sum of Odoo lines is compared with the WooCommerce total;
@@ -65,8 +66,8 @@ No dependency on OCA queue_job. A small table drives everything:
 * a lease (running for more than N minutes) is reclaimed, so a crashed worker cannot
   leave a job stuck forever;
 * exponential backoff with a configurable maximum, then dead-letter;
-* chunked jobs carry their own slice of the lookup map, so a chunk never re-reads a map
-  built when the parent job was enqueued;
+* a job handles one order or one product, so a slow HTTP call never holds a long
+  transaction and two workers never touch the same record;
 * a failed job can be retried by hand from the UI.
 
 ## 6. Stock

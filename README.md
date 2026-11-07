@@ -8,7 +8,7 @@ mandatory OCA modules.
 
 ## Status
 
-Work in progress, version 1.0 not released yet.
+Version 1.0.0. Supported on Odoo 19.0 and 20.0, tested against WooCommerce 11.2.2.
 
 ## What it does (target scope for 1.0)
 
@@ -18,9 +18,9 @@ Work in progress, version 1.0 not released yet.
 * Stock: push Odoo quantity to WooCommerce, optional pull, per-store stock master choice.
 * Orders: import on webhook and by scheduled polling, with line items, discounts,
   shipping, fees, taxes and the customer address book.
-* Refunds: import as credit notes, optional restock.
+* Refunds: import as partial credit notes, including amount-only refunds.
 * Fulfilment: send tracking numbers back to WooCommerce as order notes and status changes.
-* Customers: match by email or create, keep the shipping address as a child contact.
+* Customers: match by e-mail or create, with the WooCommerce billing address on the partner.
 * A queue with retries, a dead-letter view and an activity log instead of silent failures.
 
 Deliberately out of scope for 1.0: metafield mapping engine, subscriptions/bookings

@@ -80,8 +80,8 @@ interface.
    cp -R woocommerce_connector /opt/odoo/addons/
    ```
 
-   The directory must contain `__init__.py` and `__manifest__.py`; Odoo ignores
-   an addons directory that has neither.
+   The module directory must contain both `__init__.py` and `__manifest__.py`;
+   Odoo ignores an addons path that contains no such module.
 
 2. Restart Odoo and update the applications list:
 
@@ -199,16 +199,15 @@ Press **Test connection**. The button:
 3. activates the currency in Odoo if it exists but is archived;
 4. reads `GET /wp-json/wc/v3/settings/tax/woocommerce_prices_include_tax` and
    stores the *Prices entered with tax* flag;
-5. writes **Connected**, the versions, the date and clears **Last error**.
+5. writes **Connected**, the WooCommerce version, the date and clears **Last error**.
 
 On failure the store is marked **Error**, the message is kept in **Last error** and
 a `UserError` is raised so the cause is visible immediately. The two common causes
 are a wrong key and a store that is not on HTTPS (see
 [section 23](#23-troubleshooting)).
 
-`prices_include_tax` is stored for reference and shown on the form. Version 1.0
-does not convert tax-inclusive amounts when it imports orders; see
-[section 22](#22-known-limitations-in-10).
+`prices_include_tax` is not only stored: the order import uses it to convert gross
+line amounts to net prices (see [section 12](#12-orders)).
 
 ## 7. Webhooks
 
@@ -428,8 +427,9 @@ percentage taxes and approximate for compound taxes.
 After the order is created, the connector compares the Odoo total with the
 WooCommerce `total`. A difference larger than **Total tolerance** is written to
 the activity log as a warning (`Order SO…: Odoo total … differs from WooCommerce
-total …`) instead of being silently accepted. A tax rate missing in Odoo, a
-tax-inclusive store or a coupon applied to shipping are the usual reasons.
+total …`) instead of being silently accepted. A tax rate missing in Odoo, a compound
+tax that made the conversion approximate, or a coupon applied to shipping are the
+usual reasons.
 
 Status changes of an order that is already imported do **not** rewrite the sale
 order: they update the connector's own fields (WooCommerce status, paid flag,
@@ -580,7 +580,7 @@ read-only in the user interface.
 | Level | Written when |
 | --- | --- |
 | Info | A batch finished: "Imported N products.", "Pushed stock for N products.", a credit note was created, a tracking note was sent |
-| Warning | A product, image or variation could not be handled; an order total differs; a refund was skipped; an unmapped tax rate |
+| Warning | A product, image or variation could not be handled; an order total differs; a refund was skipped |
 | Error | A job failed: the message of the exception, the HTTP status, the WooCommerce error code and a fragment of the payload |
 
 Each line stores the date, the store, the level, the message, the HTTP status, the
@@ -595,8 +595,8 @@ answered without reading the server log.
 
 **WooCommerce > Webhook deliveries** stores every accepted delivery: date, store,
 topic, WooCommerce resource id, deduplication key (`X-WC-Webhook-ID`), state
-(*Queued*, *Done*, *Failed*), processing date, raw payload and the error when the
-job failed.
+(*Queued* → *Done*), processing date and raw payload. A delivery whose job failed
+stays **Queued** — the reason is in the **Last error** of the job it created.
 
 Use it to answer two questions: *did WordPress deliver?* and *was the delivery
 processed?* A delivery in **Queued** whose job is still pending is normal for a few
@@ -663,9 +663,9 @@ These are deliberate limits of the first version, not bugs to report:
   ordinary percentage taxes the conversion is exact; a compound tax makes the
   computed net price approximate. Tax-exclusive stores are the tested
   configuration.
-* **The outbound scheduled actions are shipped disabled.** Export products, pull
+* **The extra scheduled actions are shipped disabled.** Export products, pull
   stock, push stock and import customers have to be enabled by hand, because they
-  write to the live shop or read the whole customer list.
+  write to a live system or read the whole customer list.
 * **The Sync refunds switch has no effect.** Refunds are imported from the
   `refund.created` webhook for every active store.
 * **Variations are matched, not created.** A variation with no matching Odoo
@@ -687,7 +687,7 @@ These are deliberate limits of the first version, not bugs to report:
 | Webhook never arrives | Three usual causes: the Odoo URL is not reachable from the internet, WordPress cron is disabled (`DISABLE_WP_CRON`) and the site has no traffic, or the webhooks were never registered. Orders still arrive through the 10-minute poll. |
 | `401 invalid signature` in the WordPress webhook log | The webhook secret in WordPress differs from the store's **Webhook secret** — typically a webhook created by hand. Delete it and press **Register webhooks** again. |
 | Warning `Odoo total … differs from WooCommerce total …` | No Odoo tax has the rate of the WooCommerce tax, a compound tax made the tax-inclusive conversion approximate, or a coupon reduced shipping or fees. Check **Activity log** and the tax map. |
-| Warning `No Odoo sale tax found for rate …` | Create a sale tax with that percentage for the store company, or the order will be imported without it. |
+| `No Odoo sale tax found for rate …` in the Odoo server log | Create a sale tax with that percentage for the store company, or the order will be imported without it. |
 | `The store URL cannot be changed after records have been synchronised` | The URL is part of the identity of every mapping. Create a second store record instead. |
 | Jobs stay **Pending** | The queue scheduled action is not active, or no Odoo cron worker runs. Enable **WooCommerce: process the synchronisation queue** and check the Odoo log. |
 | Jobs fail with `WooError` | Read **Last error** on the job and the matching error line in **Activity log**: the HTTP status and the WooCommerce error code are stored there. |

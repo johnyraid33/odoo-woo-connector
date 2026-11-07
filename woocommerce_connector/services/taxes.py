@@ -37,6 +37,11 @@ def get_tax_map(env, store, client=None):
         tax = find_odoo_tax(env, store, rate)
         if not tax:
             _logger.warning('No Odoo sale tax found for rate %s', rate)
+            env['woo.log'].sudo().log(
+                store, 'warning',
+                'No Odoo sale tax found for rate %s%%. Orders with this rate '
+                'are imported without tax.' % rate,
+            )
             continue
         Mapping._upsert(store, woo_id, {
             'name': data.get('name'),

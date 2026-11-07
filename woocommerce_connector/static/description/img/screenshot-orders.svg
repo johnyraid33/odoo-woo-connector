@@ -1,11 +1,44 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-label="WooCommerce > Imported order">
-  <rect width="1200" height="700" fill="#f8fafc"/>
-  <rect x="24" y="24" width="1152" height="652" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="10 8"/>
-  <rect x="24" y="24" width="1152" height="64" rx="14" fill="#714B67"/>
-  <rect x="24" y="72" width="1152" height="16" fill="#714B67"/>
-  <text x="56" y="66" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#ffffff">WooCommerce > Imported order</text>
-  <text x="600" y="350" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="30" fill="#334155">Screenshot placeholder</text>
-  <text x="600" y="396" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" fill="#64748b">A sale order imported from WooCommerce: lines, shipping, taxes, connector note</text>
-  <text x="600" y="440" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#94a3b8">Replace this file with a real PNG or JPG screenshot before publishing.</text>
-  <text x="600" y="640" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#7f54b3">WooCommerce &lt;-&gt; Odoo · AGPL-3 · POLISHCHUK &amp; SONS LTD</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-label="Sale order imported from WooCommerce">
+<rect width="1200" height="620" fill="#f3f4f6"/>
+<rect x="20" y="20" width="1160" height="580" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<rect x="20" y="20" width="1160" height="52" rx="10" fill="#714B67"/>
+<rect x="20" y="52" width="1160" height="20" fill="#714B67"/>
+<text x="44" y="53" font-family="Helvetica,Arial,sans-serif" font-size="19" fill="#ffffff">Sale order imported from WooCommerce</text>
+<text x="44" y="96" font-family="Helvetica,Arial,sans-serif" font-size="15" fill="#6b7280">Lines, shipping and taxes come from the store; the connector note records the order number</text>
+<rect x="40" y="120" width="1120" height="34" fill="#f9fafb" stroke="#e5e7eb"/>
+<text x="46.0" y="142" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#374151">Product</text>
+<text x="226.0" y="142" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#374151">Quantity</text>
+<text x="406.0" y="142" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#374151">Unit price</text>
+<text x="586.0" y="142" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#374151">Discount</text>
+<text x="766.0" y="142" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#374151">Taxes</text>
+<text x="946.0" y="142" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#374151">Subtotal</text>
+<rect x="40" y="154" width="1120" height="34" fill="#ffffff" stroke="#eef2f7"/>
+<text x="46.0" y="176" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">Basic Cotton T-Shirt</text>
+<text x="226.0" y="176" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">2.00</text>
+<text x="406.0" y="176" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">19.90</text>
+<text x="586.0" y="176" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">10 %</text>
+<text x="766.0" y="176" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">VAT 19%</text>
+<text x="946.0" y="176" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">35.82</text>
+<rect x="40" y="188" width="1120" height="34" fill="#ffffff" stroke="#eef2f7"/>
+<text x="46.0" y="210" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">Trail Running Sneakers</text>
+<text x="226.0" y="210" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">1.00</text>
+<text x="406.0" y="210" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">69.00</text>
+<text x="586.0" y="210" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">10 %</text>
+<text x="766.0" y="210" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">VAT 19%</text>
+<text x="946.0" y="210" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">62.10</text>
+<rect x="40" y="222" width="1120" height="34" fill="#ffffff" stroke="#eef2f7"/>
+<text x="46.0" y="244" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">Flat rate</text>
+<text x="226.0" y="244" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">1.00</text>
+<text x="406.0" y="244" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">4.90</text>
+<text x="586.0" y="244" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">0 %</text>
+<text x="766.0" y="244" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">VAT 19%</text>
+<text x="946.0" y="244" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">4.90</text>
+<rect x="40" y="256" width="1120" height="34" fill="#ffffff" stroke="#eef2f7"/>
+<text x="46.0" y="278" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">Total</text>
+<text x="226.0" y="278" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827"></text>
+<text x="406.0" y="278" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827"></text>
+<text x="586.0" y="278" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827"></text>
+<text x="766.0" y="278" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827"></text>
+<text x="946.0" y="278" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#111827">122.36</text>
+<text x="1156" y="580" text-anchor="end" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#9ca3af">Interface preview</text>
 </svg>
