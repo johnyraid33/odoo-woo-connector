@@ -116,21 +116,23 @@ def _order_lines(env, store, data, tax_map):
         commands.append(Command.create(_line_values(env, store, data, line, tax_map)))
     shipping_product = _shipping_product(env, store)
     for line in data.get('shipping_lines') or []:
+        shipping_tax_ids = _tax_ids(line, tax_map)
         values = {
             'product_id': shipping_product.id,
             'name': line.get('method_title') or 'Shipping',
             'product_uom_qty': 1.0,
-            'price_unit': _to_float(line.get('total')),
-            'tax_ids': [Command.set(_tax_ids(line, tax_map))],
+            'price_unit': _net_price(env, store, _to_float(line.get('total')), shipping_tax_ids),
+            'tax_ids': [Command.set(shipping_tax_ids)],
         }
         commands.append(Command.create(values))
     for line in data.get('fee_lines') or []:
+        fee_tax_ids = _tax_ids(line, tax_map)
         values = {
             'product_id': _fee_product(env, store).id,
             'name': line.get('name') or 'Fee',
             'product_uom_qty': 1.0,
-            'price_unit': _to_float(line.get('total')),
-            'tax_ids': [Command.set(_tax_ids(line, tax_map))],
+            'price_unit': _net_price(env, store, _to_float(line.get('total')), fee_tax_ids),
+            'tax_ids': [Command.set(fee_tax_ids)],
         }
         commands.append(Command.create(values))
     return commands
@@ -145,15 +147,31 @@ def _line_values(env, store, order, line, tax_map):
     discount = 0.0
     if subtotal:
         discount = max(0.0, min(100.0, (subtotal - total) / subtotal * 100.0))
+    tax_ids = _tax_ids(line, tax_map)
     return {
         'product_id': product.id,
         'name': line.get('name') or product.display_name,
         'product_uom_qty': quantity,
-        'price_unit': price_unit,
+        'price_unit': _net_price(env, store, price_unit, tax_ids),
         'discount': discount,
-        'tax_ids': [Command.set(_tax_ids(line, tax_map))],
+        'tax_ids': [Command.set(tax_ids)],
         'customer_lead': 0,
     }
+
+
+def _net_price(env, store, gross_price, tax_ids):
+    """Convert a price to the convention Odoo uses for the sale order.
+
+    When the store enters prices with tax, the WooCommerce line subtotal is
+    gross; Odoo stores the net unit price and adds the tax itself.
+    """
+    if not gross_price or not store.prices_include_tax or not tax_ids:
+        return gross_price
+    taxes = env['account.tax'].sudo().browse(tax_ids)
+    rate = sum(taxes.mapped('amount')) / 100.0
+    if rate <= -1:
+        return gross_price
+    return gross_price / (1.0 + rate)
 
 
 def _tax_ids(line, tax_map):
@@ -168,11 +186,21 @@ def _tax_ids(line, tax_map):
 def _resolve_product(env, store, line):
     """Find the Odoo product of a WooCommerce order line."""
     Mapping = env['woo.product.mapping'].sudo()
-    woo_product_id = line.get('product_id') or line.get('variation_id')
+    # A line of a variable product carries both ids; the variation is the real one.
+    woo_product_id = line.get('variation_id') or line.get('product_id')
     mapping = Mapping._get_mapping(store, woo_product_id)
     product = mapping._record() if mapping else env['product.product'].browse()
     if product:
         return product if product._name == 'product.product' else product.product_variant_id
+    # A variation that was never synchronised still belongs to a known product.
+    parent_id = line.get('product_id')
+    if parent_id and str(parent_id) != str(woo_product_id):
+        parent_mapping = Mapping._get_mapping(store, parent_id)
+        parent = parent_mapping._record() if parent_mapping else env['product.template'].browse()
+        if parent:
+            template = parent if parent._name == 'product.template' else parent.product_tmpl_id
+            if len(template.product_variant_ids) == 1:
+                return template.product_variant_id
     sku = (line.get('sku') or '').strip()
     if sku:
         product = env['product.product'].sudo().search([('default_code', '=', sku)], limit=1)
@@ -190,7 +218,18 @@ def _resolve_product(env, store, line):
         'type': 'consu',
         'company_id': store.company_id.id,
     })
-    return template.product_variant_id
+    product = template.product_variant_id
+    if woo_product_id:
+        # Map what was just created from the order line, otherwise a later
+        # catalogue export would create a second product in WooCommerce.
+        Mapping._upsert(store, woo_product_id, {
+            'woo_type': 'variation' if line.get('variation_id') else 'simple',
+            'res_model': 'product.product',
+            'res_id': product.id,
+            'sku': sku or False,
+            'name': line.get('name'),
+        })
+    return product
 
 
 def _shipping_product(env, store):
@@ -213,6 +252,8 @@ def _shipping_product(env, store):
 
 
 def _fee_product(env, store):
+    if store.fee_product_id:
+        return store.fee_product_id
     product = env['product.product'].sudo().search([('default_code', '=', 'WOO-FEE')], limit=1)
     if not product:
         template = env['product.template'].sudo().create({
@@ -441,6 +482,8 @@ def process_webhook(env, job):
             _handle_deleted_order(env, store, data)
         else:
             import_order(env, store, data, job=job)
+    elif topic == 'product.deleted':
+        _archive_deleted_product(env, store, data, job=job)
     elif topic.startswith('product.'):
         from . import catalog
         catalog.import_product(env, store, data)
@@ -449,6 +492,23 @@ def process_webhook(env, job):
     elif topic.startswith('refund.'):
         import_refunds(env, store, {'order_id': data.get('order_id')}, job=job)
     webhook.write({'state': 'done', 'processed_at': fields.Datetime.now()})
+    return True
+
+
+def _archive_deleted_product(env, store, data, job=None):
+    """A product removed in WooCommerce is archived in Odoo, never deleted."""
+    mapping = env['woo.product.mapping'].sudo()._get_mapping(store, data.get('id'))
+    record = mapping._record() if mapping else env['product.template'].browse()
+    if not record:
+        return False
+    target = record if record._name == 'product.template' else record.product_tmpl_id
+    if 'active' in target._fields:
+        target.write({'active': False})
+    env['woo.log'].sudo().log(
+        store, 'info',
+        'Product %s deleted in WooCommerce and archived in Odoo.' % target.display_name,
+        job=job, res_model='product.template', res_id=target.id,
+    )
     return True
 
 
@@ -463,7 +523,10 @@ def push_status(env, store, payload, job=None):
     order = env['sale.order'].sudo().browse(payload.get('order_id'))
     if not order:
         return False
-    mapping = env['woo.order.mapping'].sudo()._get_by_record(store, 'sale.order', order.id)
+    # woo.order.mapping has no res_model column, it links to sale.order directly.
+    mapping = env['woo.order.mapping'].sudo().search([
+        ('store_id', '=', store.id), ('order_id', '=', order.id),
+    ], limit=1)
     if not mapping:
         return False
     status = payload.get('status')
@@ -484,11 +547,18 @@ def push_fulfilment(env, store, payload, job=None):
     if not mapping:
         return False
     tracking = picking.carrier_tracking_ref or ''
+    carrier = picking.carrier_id.name if picking.carrier_id else ''
     note = 'Shipment %s' % picking.name
+    if carrier:
+        note += ' with %s' % carrier
     if tracking:
-        note += ': %s' % tracking
+        note += '. Tracking number: %s' % tracking
     store._get_client().post('/orders/%s/notes' % mapping.woo_id, {
         'note': note,
         'customer_note': True,
     })
+    env['woo.log'].sudo().log(
+        store, 'info', 'Tracking sent to WooCommerce for order %s.' % mapping.woo_number,
+        res_model='stock.picking', res_id=picking.id,
+    )
     return True

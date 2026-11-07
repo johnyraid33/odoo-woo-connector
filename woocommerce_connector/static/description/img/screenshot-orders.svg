@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-label="WooCommerce > Imported order">
+  <rect width="1200" height="700" fill="#f8fafc"/>
+  <rect x="24" y="24" width="1152" height="652" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="10 8"/>
+  <rect x="24" y="24" width="1152" height="64" rx="14" fill="#714B67"/>
+  <rect x="24" y="72" width="1152" height="16" fill="#714B67"/>
+  <text x="56" y="66" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#ffffff">WooCommerce > Imported order</text>
+  <text x="600" y="350" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="30" fill="#334155">Screenshot placeholder</text>
+  <text x="600" y="396" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="20" fill="#64748b">A sale order imported from WooCommerce: lines, shipping, taxes, connector note</text>
+  <text x="600" y="440" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#94a3b8">Replace this file with a real PNG or JPG screenshot before publishing.</text>
+  <text x="600" y="640" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#7f54b3">WooCommerce &lt;-&gt; Odoo · AGPL-3 · POLISHCHUK &amp; SONS LTD</text>
+</svg>

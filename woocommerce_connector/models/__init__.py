@@ -6,3 +6,5 @@ from . import woo_job
 from . import woo_log
 from . import woo_webhook
 from . import woo_mapping
+from . import stock_picking
+from . import sale_order

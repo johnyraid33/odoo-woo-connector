@@ -30,6 +30,8 @@
                     <button name="action_register_webhooks" type="object"
                             string="Register webhooks"/>
                     <button name="action_sync_now" type="object" string="Sync now"/>
+                    <button name="action_export_products" type="object" string="Export products"/>
+                    <button name="action_import_customers" type="object" string="Import customers"/>
                     <field name="connection_state" widget="statusbar"
                            statusbar_visible="draft,ok,error"/>
                 </header>
@@ -43,6 +45,8 @@
                             <field name="consumer_key" password="True"/>
                             <field name="consumer_secret" password="True"/>
                             <field name="verify_ssl"/>
+                            <field name="wp_user"/>
+                            <field name="wp_app_password" password="True"/>
                             <field name="api_version" readonly="1"/>
                             <field name="last_test_date" readonly="1"/>
                             <field name="currency_id" readonly="1"/>
@@ -54,6 +58,7 @@
                             <field name="pricelist_id"/>
                             <field name="default_product_category_id"/>
                             <field name="shipping_product_id"/>
+                            <field name="fee_product_id"/>
                         </group>
                     </group>
                     <group>

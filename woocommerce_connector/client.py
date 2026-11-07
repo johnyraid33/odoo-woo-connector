@@ -132,7 +132,8 @@ class WooClient:
     """Thin, dependency free client for the WooCommerce REST API v3."""
 
     def __init__(self, base_url, consumer_key, consumer_secret, timeout=HTTP_TIMEOUT,
-                 attempts=HTTP_ATTEMPTS, session=None, user_agent=None, verify=True):
+                 attempts=HTTP_ATTEMPTS, session=None, user_agent=None, verify=True,
+                 wp_user=None, wp_app_password=None):
         self.base_url = normalize_base_url(base_url)
         if not consumer_key or not consumer_secret:
             raise ValueError('The consumer key and secret are required.')
@@ -146,6 +147,10 @@ class WooClient:
         # validated (a local development stack, a self-signed certificate) has to
         # opt out explicitly in its configuration.
         self.verify = verify
+        # WordPress core endpoints (media upload) do not accept WooCommerce keys:
+        # they need a WordPress user and an application password.
+        self.wp_user = wp_user or None
+        self.wp_app_password = wp_app_password or None
         self.api_root = self.base_url + API_ROOT
         self.last_response = None
 
@@ -326,6 +331,46 @@ class WooClient:
             'currency': (settings or {}).get('currency'),
             'api_root': self.api_root,
         }
+
+    # ----------------------------------------------------------------- media
+    def download(self, url, max_bytes=10 * 1024 * 1024):
+        """Download an image, with a size ceiling and the same TLS policy."""
+        response = self.session.get(
+            url, timeout=self.timeout, verify=self.verify, stream=True,
+            headers={'User-Agent': self.user_agent},
+        )
+        if response.status_code >= 400:
+            raise self._error(response)
+        content = response.content
+        if len(content) > max_bytes:
+            raise WooError('Image at %s is larger than %s bytes.' % (url, max_bytes))
+        return content
+
+    def upload_media(self, filename, content, mimetype='image/jpeg'):
+        """Upload a file to the WordPress media library, returning its id."""
+        if not self.wp_user or not self.wp_app_password:
+            raise WooError(
+                'Image export needs a WordPress user and application password '
+                'in the store configuration.'
+            )
+        response = self.session.post(
+            self.base_url + '/wp-json/wp/v2/media',
+            auth=(self.wp_user, self.wp_app_password),
+            headers={
+                'Content-Disposition': 'attachment; filename="%s"' % filename,
+                'Content-Type': mimetype,
+                'User-Agent': self.user_agent,
+            },
+            data=content,
+            timeout=self.timeout,
+            verify=self.verify,
+        )
+        if response.status_code >= 400:
+            raise self._error(response)
+        try:
+            return response.json()
+        except ValueError as exc:
+            raise WooError('WordPress returned a non JSON answer for the upload.') from exc
 
     # --------------------------------------------------------------- webhooks
     def create_webhook(self, name, topic, delivery_url, secret):

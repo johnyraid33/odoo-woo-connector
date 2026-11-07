@@ -142,6 +142,11 @@ services:
       - ../woocommerce_connector:/mnt/extra-addons/woocommerce_connector
     ports:
       - "${ODOO_PORT:-8090}:8069"
+    extra_hosts:
+      # The store builds absolute image URLs from its public address
+      # (http://localhost:8092). Inside the Odoo container that name has to
+      # resolve to the host, otherwise image import cannot be verified locally.
+      - "localhost:host-gateway"
 
 volumes:
   mysql_data:

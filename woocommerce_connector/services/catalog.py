@@ -13,6 +13,8 @@ import re
 
 from odoo import Command, fields
 
+from . import images
+
 _logger = logging.getLogger(__name__)
 
 MAX_DESCRIPTION = 4000
@@ -23,6 +25,9 @@ def import_products(env, store, payload, job=None):
     client = store._get_client()
     params = {'orderby': 'id', 'order': 'asc', 'status': 'any'}
     watermark = payload.get('modified_after')
+    if not watermark and store.last_product_sync:
+        # Poll from the watermark instead of re-reading the whole catalogue.
+        watermark = store.last_product_sync.strftime('%Y-%m-%dT%H:%M:%S')
     if watermark:
         params['modified_after'] = watermark
     count = 0
@@ -51,6 +56,7 @@ def import_product(env, store, data, client=None):
         template = mapping._record()
         if template:
             _update_template(env, store, template, data)
+            images.import_images(env, store, template, data, client=client)
             _import_variations(env, store, template, data, client)
             return template
 
@@ -70,6 +76,7 @@ def import_product(env, store, data, client=None):
         'name': data.get('name'),
     })
     _import_variations(env, store, doc, data, client)
+    images.import_images(env, store, doc, data, client=client)
     return doc
 
 
@@ -239,17 +246,33 @@ def export_products(env, store, payload, job=None):
         mapping = Mapping._get_by_record(store, 'product.template', template.id)
         values = _export_values(env, store, template)
         try:
+            if not mapping and template.default_code:
+                # The product may already exist in WooCommerce with this SKU;
+                # adopting it prevents a duplicate on the first export.
+                existing = client.get('/products', sku=template.default_code, per_page=1)
+                if existing:
+                    Mapping._upsert(store, existing[0].get('id'), {
+                        'woo_type': 'simple',
+                        'res_model': 'product.template',
+                        'res_id': template.id,
+                        'sku': template.default_code,
+                        'name': template.name,
+                    })
+                    mapping = Mapping._get_by_record(store, 'product.template', template.id)
             if mapping:
-                client.put('/products/%s' % mapping.woo_id, values)
+                woo_id = mapping.woo_id
+                client.put('/products/%s' % woo_id, values)
             else:
                 created = client.post('/products', values)
-                Mapping._upsert(store, created.get('id'), {
+                woo_id = str(created.get('id'))
+                Mapping._upsert(store, woo_id, {
                     'woo_type': 'simple',
                     'res_model': 'product.template',
                     'res_id': template.id,
                     'sku': template.default_code,
                     'name': template.name,
                 })
+            images.export_images(env, store, template, woo_id, client=client, job=job)
             count += 1
         except Exception as exc:  # noqa: BLE001
             env['woo.log'].sudo().log_error(

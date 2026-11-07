@@ -22,7 +22,7 @@ def _lock(env, key):
 
 def available_quantity(env, store, product):
     """Return the quantity the connector is configured to publish."""
-    location = store.warehouse_id.lot_stock_id
+    location = store._get_warehouse().lot_stock_id
     domain = [('product_id', '=', product.id)]
     if location:
         domain.append(('location_id', 'child_of', location.id))
@@ -46,7 +46,8 @@ def push_stock(env, store, payload, job=None):
         if not record:
             continue
         product = record if record._name == 'product.product' else record.product_variant_id
-        if not product or product.type != 'consu':
+        # Consumables and services have no quants; only storable goods carry stock.
+        if not product or not product.is_storable:
             continue
         _lock(env, product.id)
         quantity = available_quantity(env, store, product)
@@ -78,7 +79,7 @@ def pull_stock(env, store, payload, job=None):
         return 0
     client = store._get_client()
     Mapping = env['woo.product.mapping'].sudo()
-    location = store.warehouse_id.lot_stock_id
+    location = store._get_warehouse().lot_stock_id
     if not location:
         env['woo.log'].sudo().log(store, 'error', 'No warehouse configured for stock import.')
         return 0
@@ -89,7 +90,11 @@ def pull_stock(env, store, payload, job=None):
         if not product:
             continue
         try:
-            data = client.get('/products/%s' % mapping.woo_id)
+            if mapping.res_model == 'product.product' and mapping.woo_parent_id:
+                data = client.get('/products/%s/variations/%s' % (
+                    mapping.woo_parent_id, mapping.woo_id))
+            else:
+                data = client.get('/products/%s' % mapping.woo_id)
             quantity = data.get('stock_quantity')
             if quantity is None:
                 continue

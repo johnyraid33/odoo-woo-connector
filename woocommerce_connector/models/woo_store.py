@@ -48,6 +48,16 @@ class WooStore(models.Model):
     )
     consumer_key = fields.Char(groups='woocommerce_connector.group_woocommerce_manager')
     consumer_secret = fields.Char(groups='woocommerce_connector.group_woocommerce_manager')
+    wp_user = fields.Char(
+        string='WordPress user',
+        groups='woocommerce_connector.group_woocommerce_manager',
+        help='Only needed to upload product images to WooCommerce.',
+    )
+    wp_app_password = fields.Char(
+        string='WordPress application password',
+        groups='woocommerce_connector.group_woocommerce_manager',
+        help='WordPress > Users > Profile > Application passwords.',
+    )
     verify_ssl = fields.Boolean(
         string='Verify the TLS certificate', default=True,
         help='Uncheck only for a local store with a self-signed certificate. '
@@ -68,12 +78,20 @@ class WooStore(models.Model):
     )
 
     # ---------------------------------------------------------------- mapping
-    warehouse_id = fields.Many2one('stock.warehouse', string='Warehouse')
+    warehouse_id = fields.Many2one(
+        'stock.warehouse', string='Warehouse',
+        default=lambda self: self._default_warehouse(),
+    )
     pricelist_id = fields.Many2one('product.pricelist', string='Pricelist')
     default_product_category_id = fields.Many2one('product.category')
     shipping_product_id = fields.Many2one(
         'product.product', string='Shipping product',
         domain=[('type', '=', 'service')],
+    )
+    fee_product_id = fields.Many2one(
+        'product.product', string='Fee product',
+        domain=[('type', '=', 'service')],
+        help='Used for the fee lines of a WooCommerce order.',
     )
 
     # ------------------------------------------------------------------ stock
@@ -173,6 +191,17 @@ class WooStore(models.Model):
                 return True
         return False
 
+    @api.model
+    def _default_warehouse(self):
+        return self.env['stock.warehouse'].search(
+            [('company_id', '=', self.env.company.id)], limit=1,
+        )
+
+    def _get_warehouse(self):
+        """Return the warehouse to read stock from, falling back to the company one."""
+        self.ensure_one()
+        return self.warehouse_id or self._default_warehouse()
+
     # ---------------------------------------------------------------- clients
     def _get_client(self):
         self.ensure_one()
@@ -181,6 +210,7 @@ class WooStore(models.Model):
         return WooClient(
             self.base_url, self.consumer_key, self.consumer_secret,
             verify=self.verify_ssl,
+            wp_user=self.wp_user, wp_app_password=self.wp_app_password,
         )
 
     # ------------------------------------------------------------------ queue
@@ -303,6 +333,23 @@ class WooStore(models.Model):
             },
         }
 
+    def action_export_products(self):
+        self.ensure_one()
+        self._enqueue('product_export', {'mode': 'manual'})
+        return self._notify('Product export queued.')
+
+    def action_import_customers(self):
+        self.ensure_one()
+        self._enqueue('customer_import', {'mode': 'manual'})
+        return self._notify('Customer import queued.')
+
+    def _notify(self, message):
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {'title': 'WooCommerce', 'message': message, 'type': 'success'},
+        }
+
     # ------------------------------------------------------------------ crons
     @api.model
     def _cron_poll_orders(self):
@@ -320,3 +367,20 @@ class WooStore(models.Model):
     def _cron_poll_products(self):
         for store in self.search([('active', '=', True), ('sync_products', '=', True)]):
             store._enqueue('product_import', {'mode': 'poll'})
+
+    @api.model
+    def _cron_push_products(self):
+        for store in self.search([('active', '=', True), ('export_products', '=', True)]):
+            store._enqueue('product_export', {'mode': 'poll'})
+
+    @api.model
+    def _cron_pull_stock(self):
+        for store in self.search([
+            ('active', '=', True), ('stock_master', '=', 'woo'),
+        ]):
+            store._enqueue('stock_pull', {'mode': 'poll'})
+
+    @api.model
+    def _cron_pull_customers(self):
+        for store in self.search([('active', '=', True), ('sync_customers', '=', True)]):
+            store._enqueue('customer_import', {'mode': 'poll'})

@@ -14,6 +14,8 @@ Two APIs changed between the two versions:
 Keeping both here means the rest of the module never asks which version runs.
 """
 
+import base64
+
 import odoo
 
 MAJOR_VERSION = odoo.release.version_info[0]
@@ -50,6 +52,30 @@ def param_set(ICP, key, value):
         ICP.set_str(key, value)
     else:
         ICP.set_param(key, value)
+
+
+def binary_to_base64(raw):
+    """Return the value a binary field expects (Odoo 20 rejects raw bytes)."""
+    if not raw:
+        return False
+    if isinstance(raw, (bytes, bytearray)):
+        return base64.b64encode(raw).decode('ascii')
+    return raw
+
+
+def binary_to_bytes(value):
+    """Return the bytes of a binary field value on any supported version."""
+    if not value:
+        return b''
+    if isinstance(value, str):
+        return base64.b64decode(value)
+    content = getattr(value, 'content', None)
+    if content is not None:
+        return content
+    try:
+        return bytes(value)
+    except TypeError:
+        return b''
 
 
 def access_model(env):
