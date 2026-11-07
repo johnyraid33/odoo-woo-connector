@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 from odoo import Command, fields
 from odoo.exceptions import UserError
 
+from ..const import CANCELLED_STATUSES
 from . import customers, taxes
 
 _logger = logging.getLogger(__name__)
@@ -48,8 +49,11 @@ def import_orders(env, store, payload, job=None):
 
 def import_order(env, store, data, client=None, job=None):
     """Create the sale.order of one WooCommerce order, or update its status."""
+    from .sync import record_lock
+
     Mapping = env['woo.order.mapping'].sudo()
     woo_id = str(data.get('id'))
+    record_lock(env, 'order', store.id, woo_id)
     mapping = Mapping._get_mapping(store, woo_id)
     if mapping and mapping.order_id:
         _sync_status(env, store, mapping.order_id, data, mapping)
@@ -301,7 +305,7 @@ def _sync_status(env, store, order, data, mapping):
         'total': _to_float(data.get('total')),
     }
     mapping.write(values)
-    if status == 'cancelled' and order.state not in ('cancel', 'done'):
+    if status in CANCELLED_STATUSES and order.state not in ('cancel', 'done'):
         order.action_cancel()
     return order
 

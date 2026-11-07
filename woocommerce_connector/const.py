@@ -43,8 +43,10 @@ JOB_TYPES = [
     ('webhook_event', 'Process webhook'),
 ]
 
-#: WooCommerce order statuses that Odoo treats as cancelled.
-CANCELLED_STATUSES = ('cancelled', 'refunded', 'failed', 'trash')
+#: WooCommerce order statuses that cancel the Odoo sale order.
+#: A failed payment is deliberately not here: the merchant usually retries or
+#: edits the order, and cancelling the ERP document would lose that work.
+CANCELLED_STATUSES = ('cancelled', 'refunded', 'trash')
 
 #: Default tolerance when comparing Odoo totals with WooCommerce totals.
 DEFAULT_TOTAL_TOLERANCE = 0.02

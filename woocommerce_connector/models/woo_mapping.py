@@ -139,6 +139,9 @@ class WooTaxMapping(models.Model):
     woo_rate = fields.Float(string='Rate (%)', required=True)
     tax_id = fields.Many2one('account.tax', required=True, ondelete='cascade')
 
-    _store_rate_uniq = models.Constraint(
-        'unique(store_id, woo_rate)', 'This rate is already mapped.',
+    # A store can have several rates with the same percentage in different tax
+    # classes (for example two 19% rates for goods and for services), so the
+    # identity is the WooCommerce tax id, never the rate.
+    _store_woo_uniq = models.Constraint(
+        'unique(store_id, woo_id)', 'This tax rate is already mapped.',
     )

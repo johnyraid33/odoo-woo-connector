@@ -21,10 +21,13 @@ def get_or_create_partner(env, store, customer, order=None):
     customer is the /customers object; order is the /orders object used as a
     fallback when the order was placed as a guest.
     """
+    from .sync import record_lock
+
     Mapping = env['woo.partner.mapping'].sudo()
     Partner = env['res.partner'].sudo()
     customer = customer or {}
     woo_id = customer.get('id') or 0
+    record_lock(env, 'partner', store.id, woo_id or (order or {}).get('id') or 0)
     email = (customer.get('email') or (order or {}).get('billing', {}).get('email') or '').strip()
     phone = (customer.get('billing', {}).get('phone') or '').strip()
 

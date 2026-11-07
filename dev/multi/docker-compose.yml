@@ -1,0 +1,163 @@
+# SECOND, independent WooCommerce stack for multi-store tests.
+#
+#   WordPress 6.5.5 (PHP 8.3, Apache) + WooCommerce 8.9.1 + MySQL 8.0
+#       HTTP  -> http://localhost:${WP_PORT:-8093}
+#       HTTPS -> https://localhost:${WP_HTTPS_PORT:-8444}   (REST API, self-signed cert)
+#   PostgreSQL 17 (host port ${PG_PORT:-5434}) — parity with the main stack only;
+#       this stack intentionally runs NO Odoo container.
+#
+# Why a second stack:
+#   * the connector must be able to talk to two different stores at once;
+#   * it must be verified against an OLDER WooCommerce line (8.9.x, HPOS era),
+#     while the main dev stack runs the current WooCommerce.
+#
+# Network: the WordPress container joins the MAIN stack's network
+# (odoo-woo-connector-dev_default) with the alias "wordpress-multi", so the
+# Odoo container of the main stack can call https://wordpress-multi directly
+# (no host port forwarding involved). The TLS certificate's SAN includes
+# "wordpress-multi" for exactly that reason.
+#
+# Everything is driven by ./multi.sh (up | down | reset | seed | creds | status
+# | verify | logs). Host ports / passwords can be overridden in dev/multi/.env.
+
+name: odoo-woo-connector-multi
+
+services:
+  # ------------------------------------------------------------------ MySQL
+  # Database for WordPress/WooCommerce (completely separate from the main stack).
+  #
+  # NB: this service is deliberately NOT called "db". The WordPress container
+  # also joins the MAIN stack's docker network, where a "db" service already
+  # exists (the main stack's MySQL); Docker's embedded DNS would then resolve
+  # "db" to the main stack's container and this store would happily read (and
+  # write!) the other store's database. Every service in this stack therefore
+  # carries a unique "-multi" suffix.
+  mysql-multi:
+    image: mysql:8.0
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --max-allowed-packet=64M
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-wordpress}
+      MYSQL_USER: ${MYSQL_USER:-wordpress}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-wordpress}
+    volumes:
+      - mysql_multi_data:/var/lib/mysql
+    ports:
+      # Loopback only, for debugging. Not required by the stack.
+      - "127.0.0.1:${MYSQL_PORT:-3308}:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 20s
+
+  # ------------------------------------------------------------- WordPress
+  # Pinned to the WP line WooCommerce 8.9.1 was released for (WP 6.5) instead
+  # of the latest core, so the older WooCommerce plugin runs on a matching core.
+  wordpress-multi:
+    image: wordpress:6.5.5-php8.3-apache
+    depends_on:
+      mysql-multi:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: mysql-multi:3306
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE:-wordpress}
+      WORDPRESS_DB_USER: ${MYSQL_USER:-wordpress}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:-wordpress}
+      WORDPRESS_DEBUG: "1"
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_DEBUG_LOG', '/var/www/html/wp-content/debug.log');
+        define('WP_DEBUG_DISPLAY', false);
+        define('FS_METHOD', 'direct');
+        define('WP_ENVIRONMENT_TYPE', 'local');
+    # Wrapper that enables Apache mod_ssl (off in the upstream image) and then
+    # hands over to the image's own entrypoint.
+    entrypoint: ["/opt/scripts/wp-entrypoint.sh"]
+    volumes:
+      - wordpress_multi_data:/var/www/html
+      - ./scripts:/opt/scripts:ro
+      - ./apache-ssl.conf:/etc/apache2/conf-enabled/zz-multi-ssl.conf:ro
+      - ./certs:/etc/apache2/multi-certs:ro
+    ports:
+      # HTTP is published on all interfaces: the main stack's Odoo container
+      # resolves "localhost" to the Docker host gateway, so image URLs built
+      # from http://localhost:${WP_PORT} stay fetchable from Odoo.
+      - "${WP_PORT:-8093}:80"
+      # Loopback only: self-signed HTTPS endpoint for WooCommerce REST auth.
+      - "127.0.0.1:${WP_HTTPS_PORT:-8444}:443"
+    networks:
+      default: {}
+      shared:
+        aliases:
+          # DNS name the Odoo container of the MAIN stack uses as base_url:
+          #   https://wordpress-multi
+          - wordpress-multi
+
+  # ------------------------------------------------------------- WP-CLI/seed
+  # Automation container (wp-cli). Kept alive with `tail` so that
+  #   docker compose exec wpcli-multi wp ...   works after ./multi.sh up
+  wpcli-multi:
+    image: wordpress:cli-php8.3
+    depends_on:
+      wordpress-multi:
+        condition: service_started
+    # The apache image's www-data is uid 33; the alpine cli image's is 82.
+    # Run as 33 so files written by wp-cli stay owned by the same user as the
+    # files apache writes into the shared volume.
+    user: "33:33"
+    entrypoint: ["tail", "-f", "/dev/null"]
+    environment:
+      WP_CLI_CACHE_DIR: /tmp/wp-cli-cache
+      WP_CLI_ALLOW_ROOT: "1"
+      WORDPRESS_DB_HOST: mysql-multi:3306
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE:-wordpress}
+      WORDPRESS_DB_USER: ${MYSQL_USER:-wordpress}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:-wordpress}
+      # Written as "base_url" into dev/multi/.woo_credentials.json.
+      # This is the address the Odoo container of the main stack uses (network
+      # alias), not a host port: the connector talks to it container-to-container.
+      WOO_API_BASE_URL: ${WOO_API_BASE_URL:-https://wordpress-multi}
+      # The same store as seen FROM THE HOST (loopback HTTPS port), recorded in
+      # the credentials file as "host_base_url" for host-side curl / tests.
+      WOO_API_HOST_URL: https://localhost:${WP_HTTPS_PORT:-8444}
+    volumes:
+      - wordpress_multi_data:/var/www/html
+      - ./scripts:/opt/scripts:ro
+
+  # --------------------------------------------------------- PostgreSQL (unused)
+  # The connector under test lives in the MAIN stack. This PostgreSQL exists
+  # only so the multi stack mirrors the main one in shape, as requested.
+  pg-multi:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    volumes:
+      - odoo_pg_multi_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${PG_PORT:-5434}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 10s
+
+networks:
+  # The multi stack's own private network (odoo-woo-connector-multi_default).
+  default: {}
+  # The MAIN dev stack's network. Joined as an external network so the Odoo
+  # container there can reach this WordPress under the "wordpress-multi" name.
+  shared:
+    external: true
+    name: ${MAIN_STACK_NETWORK:-odoo-woo-connector-dev_default}
+
+volumes:
+  mysql_multi_data:
+  wordpress_multi_data:
+  odoo_pg_multi_data:

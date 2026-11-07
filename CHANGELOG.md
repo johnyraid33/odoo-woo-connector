@@ -8,6 +8,41 @@ the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.2] — unreleased
+
+Verification round with two independent stores (WooCommerce 11.2.2 and 8.9.1),
+mixed and duplicate tax rates, a reverse proxy, 507 products, concurrent workers
+and every status transition.
+
+### Fixed
+
+* **Two rates with the same percentage from different tax classes broke the tax
+  mapping.** The mapping table enforced uniqueness on (store, rate), so a store
+  with two 19% rates failed with a UniqueViolation and the order was not imported.
+  The identity is now the WooCommerce tax id, exactly like every other mapping.
+* **Order status transitions did not follow the documented rule.** Only
+  `cancelled` cancelled the sale order. The rule is now explicit: `cancelled`,
+  `refunded` and `trash` cancel it; `failed` and `on-hold` never do, because a
+  failed payment is not a cancellation.
+* **Two queue workers could process the same customer at once** and the second
+  transaction died on the mapping unique index. Every import now takes a
+  transaction-level advisory lock on the record being synchronised.
+
+### Verified in this round
+
+* two independent stores in one Odoo database: isolated mappings, isolated
+  totals, cancelling in one store does not touch the other
+* WooCommerce 8.9.1 next to 11.2.2
+* 19% and 7% on different lines, two 19% rates from different tax classes, a
+  fixed tax that is never matched, multi-currency refusal
+* deleted order, edited order, failed/on-hold/refunded/cancelled statuses, a
+  plugin-set custom status
+* shipping-only refund, partial delivery with a backorder and tracking note
+* JPEG and broken image URLs, multiple images
+* 507 products over six pages in 7.1 s
+* two concurrent workers, each job executed exactly once
+* store behind a TLS reverse proxy with its own certificate authority
+
 ## [1.0.1] — unreleased
 
 Verification round against a tax-inclusive store, a variable product, a 111-product

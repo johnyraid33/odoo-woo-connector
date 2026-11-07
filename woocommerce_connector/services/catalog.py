@@ -50,9 +50,12 @@ def import_products(env, store, payload, job=None):
 
 def import_product(env, store, data, client=None):
     """Create or update one product.template, then its variations."""
+    from .sync import record_lock
+
     Product = env['product.template'].sudo()
     Mapping = env['woo.product.mapping'].sudo()
     woo_id = str(data.get('id'))
+    record_lock(env, 'product', store.id, woo_id)
     mapping = Mapping._get_mapping(store, woo_id)
 
     if mapping:

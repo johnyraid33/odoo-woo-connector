@@ -20,6 +20,23 @@ def process_job(env, job):
     return handler(env, job)
 
 
+def record_lock(env, scope, *parts):
+    """Serialise work on one external record between concurrent workers.
+
+    Two queue workers can pick up a webhook and a poll for the same customer or
+    order at the same time; without a lock both create the mapping and the
+    second transaction dies on the unique index. The lock is released when the
+    transaction ends.
+    """
+    key = '|'.join([scope] + [str(part) for part in parts])
+    # a stable 32 bit hash of the key drives pg_advisory_xact_lock
+    env.cr.execute(
+        'SELECT pg_advisory_xact_lock(hashtext(%s), hashtext(%s))',
+        ['woocommerce_connector', key],
+    )
+    return key
+
+
 def _product_import(env, job):
     return catalog.import_products(env, job.store_id, job._payload(), job)
 

@@ -21,7 +21,9 @@ The two sources of truth (a webhook and a scheduled poll) will always race. Ther
 
 1. Every job handler is idempotent: running it twice must end with the same data.
 2. Writes use INSERT ... ON CONFLICT DO NOTHING semantics inside a savepoint; a
-   UniqueViolation is retried and turned into an update, not into an error.
+   UniqueViolation is retried and turned into an update, not into an error. In
+   addition every import takes a transaction-level advisory lock on the external
+   record, so two workers never build the same mapping at the same time.
 3. Stock writes take a PostgreSQL advisory lock per product before read-modify-write.
 4. No HTTP request ever happens inside a long database transaction: a job first fetches,
    then commits, then writes.
