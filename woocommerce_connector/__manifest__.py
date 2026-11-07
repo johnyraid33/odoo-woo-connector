@@ -3,7 +3,7 @@
 
 {
     'name': 'WooCommerce Connector',
-    'version': '1.0.2',
+    'version': '19.0.1.0.2',
     'category': 'Sales/Sales',
     'summary': 'Free two-way sync between WooCommerce and Odoo: catalog, stock, orders',
     'description': 'A free, open source connector between WooCommerce and Odoo: products, variations, stock levels, orders, refunds and tracking numbers, with a queue and an activity log. No paid licence, no external Python packages, no mandatory OCA modules.',
