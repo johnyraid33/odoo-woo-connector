@@ -6,9 +6,9 @@ The module is published on GitHub and, when ready, in the Odoo Apps Store.
 
 | Branch | Odoo | Manifest version |
 | --- | --- | --- |
-| `main` | development | `1.0.0` |
-| `20.0` | Odoo 20.0 | `20.0.1.0.0` |
-| `19.0` | Odoo 19.0 | `19.0.1.0.0` |
+| `main` | development | `1.0.3` |
+| `20.0` | Odoo 20.0 | `20.0.1.0.3` |
+| `19.0` | Odoo 19.0 | `19.0.1.0.3` |
 
 The Apps Store builds a module from the version branch: the manifest version has
 to start with the Odoo series.
@@ -23,21 +23,21 @@ to start with the Odoo series.
    folder itself must be the root entry of the archive:
 
    ```bash
-   rm -rf /tmp/rel && mkdir -p /tmp/rel/woocommerce_connector
-   git archive --format=tar 20.0:woocommerce_connector | tar -x -C /tmp/rel/woocommerce_connector
-   ( cd /tmp/rel && zip -qr woocommerce_connector-20.0.1.0.0.zip woocommerce_connector )
-   unzip -l woocommerce_connector-20.0.1.0.0.zip | head
+   rm -rf /tmp/rel && mkdir -p /tmp/rel/rex_woocommerce_connector
+   git archive --format=tar 20.0:rex_woocommerce_connector | tar -x -C /tmp/rel/rex_woocommerce_connector
+   ( cd /tmp/rel && zip -qr rex_woocommerce_connector-20.0.1.0.0.zip rex_woocommerce_connector )
+   unzip -l rex_woocommerce_connector-20.0.1.0.0.zip | head
    ```
 
 5. Create the release and attach the package:
 
    ```bash
-   gh release create vX.Y.Z dist/woocommerce_connector-20.0.zip --title "WooCommerce Connector X.Y.Z" --notes-file ...
+   gh release create vX.Y.Z dist/rex_woocommerce_connector-20.0.zip --title "Two-way Sync for WooCommerce X.Y.Z" --notes-file ...
    ```
 
 6. Odoo Apps Store: upload the zip from the `20.0` branch, category
    *Sales*, licence *AGPL-3*, price 0, and paste the text of
-   `woocommerce_connector/static/description/index.html`.
+   `rex_woocommerce_connector/static/description/index.html`.
 
 ## Checklist before a release
 

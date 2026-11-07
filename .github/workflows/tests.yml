@@ -16,13 +16,13 @@ jobs:
         with:
           python-version: '3.12'
       - name: Byte-compile the module
-        run: python -m compileall -q woocommerce_connector
+        run: python -m compileall -q rex_woocommerce_connector
       - name: Validate every XML file
         run: |
           python - <<'PY'
           import glob
           import xml.etree.ElementTree as ET
-          files = glob.glob('woocommerce_connector/**/*.xml', recursive=True)
+          files = glob.glob('rex_woocommerce_connector/**/*.xml', recursive=True)
           for path in files:
               ET.parse(path)
           print(f'{len(files)} XML files are well formed')
@@ -31,7 +31,7 @@ jobs:
         run: |
           python - <<'PY'
           import ast
-          tree = ast.parse(open('woocommerce_connector/__manifest__.py', encoding='utf-8').read())
+          tree = ast.parse(open('rex_woocommerce_connector/__manifest__.py', encoding='utf-8').read())
           manifest = ast.literal_eval(tree.body[0].value)
           assert manifest['license'] == 'AGPL-3'
           assert manifest['installable'] is True
@@ -65,8 +65,8 @@ jobs:
         run: |
           docker run --rm --network host \
             -e HOST=127.0.0.1 -e USER=odoo -e PASSWORD=odoo \
-            -v "$PWD/woocommerce_connector:/mnt/extra-addons/woocommerce_connector:ro" \
+            -v "$PWD/rex_woocommerce_connector:/mnt/extra-addons/rex_woocommerce_connector:ro" \
             odoo:${{ matrix.odoo }} \
-            odoo -d ci -i woocommerce_connector --stop-after-init \
-            --test-enable --test-tags /woocommerce_connector \
+            odoo -d ci -i rex_woocommerce_connector --stop-after-init \
+            --test-enable --test-tags /rex_woocommerce_connector \
             --addons-path=/mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons

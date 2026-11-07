@@ -1,4 +1,4 @@
-# Reproducible local verification stack for the woocommerce_connector Odoo module.
+# Reproducible local verification stack for the rex_woocommerce_connector Odoo module.
 #
 #   WordPress 7.x + WooCommerce 11.2.2 + MySQL 8.0   -> http://localhost:${WP_PORT:-8091}
 #                                                      https://localhost:${WP_HTTPS_PORT:-8443} (REST API)
@@ -139,7 +139,7 @@ services:
       - ./certs:/mnt/dev-certs:ro
       - odoo_data:/var/lib/odoo
       # The module under test. Read-write so Odoo can write __pycache__.
-      - ../woocommerce_connector:/mnt/extra-addons/woocommerce_connector
+      - ../rex_woocommerce_connector:/mnt/extra-addons/rex_woocommerce_connector
     ports:
       - "${ODOO_PORT:-8090}:8069"
     extra_hosts:

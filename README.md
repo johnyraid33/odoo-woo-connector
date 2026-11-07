@@ -1,4 +1,4 @@
-# WooCommerce Connector for Odoo
+# Two-way Sync for WooCommerce
 
 [![Tests](https://github.com/johnyraid33/odoo-woo-connector/actions/workflows/tests.yml/badge.svg)](https://github.com/johnyraid33/odoo-woo-connector/actions/workflows/tests.yml)
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
@@ -40,22 +40,22 @@ No pip install, no OCA queue_job, no base_multi_image.
 
 ## Installation
 
-1. Copy the woocommerce_connector folder into your addons path and update the Apps list.
-2. Install WooCommerce Connector.
+1. Copy the rex_woocommerce_connector folder into your addons path and update the Apps list.
+2. Install Two-way Sync for WooCommerce.
 3. Open WooCommerce > Configuration > Stores, create a store, fill in the URL and the
    consumer key/secret generated in WooCommerce > Settings > Advanced > REST API.
 4. Press Test connection, then Register webhooks.
 5. Enable the scheduled actions.
 
-A detailed guide is in woocommerce_connector/doc/USER_GUIDE.md, with Ukrainian
+A detailed guide is in rex_woocommerce_connector/doc/USER_GUIDE.md, with Ukrainian
 and Russian translations next to it.
 
 ## Repository layout
 
 | Path | What it is |
 | --- | --- |
-| woocommerce_connector/ | the Odoo module |
-| woocommerce_connector/doc/ | user guides (English, Ukrainian, Russian) |
+| rex_woocommerce_connector/ | the Odoo module |
+| rex_woocommerce_connector/doc/ | user guides (English, Ukrainian, Russian) |
 | dev/ | reproducible WordPress + WooCommerce + Odoo stack for verification |
 | ARCHITECTURE.md | design rules and the failures they prevent |
 | TESTING.md | what has been verified, how, and the honest list of gaps |

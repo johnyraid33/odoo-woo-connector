@@ -147,15 +147,15 @@ cmd_status() {
   compose exec -T odoo-db psql -U odoo -d postgres -tAc "SELECT datname FROM pg_database WHERE NOT datistemplate AND datname <> 'postgres' ORDER BY datname;" 2>/dev/null | sed 's/^/    /' || info "n/a"
   echo
   echo "=== module mount ==="
-  if [[ -f "$DEV_DIR/../woocommerce_connector/__manifest__.py" ]]; then
-    info "woocommerce_connector/__manifest__.py: present"
+  if [[ -f "$DEV_DIR/../rex_woocommerce_connector/__manifest__.py" ]]; then
+    info "rex_woocommerce_connector/__manifest__.py: present"
   else
-    info "woocommerce_connector/__manifest__.py: MISSING"
+    info "rex_woocommerce_connector/__manifest__.py: MISSING"
   fi
-  if [[ -f "$DEV_DIR/../woocommerce_connector/__init__.py" ]]; then
-    info "woocommerce_connector/__init__.py: present"
+  if [[ -f "$DEV_DIR/../rex_woocommerce_connector/__init__.py" ]]; then
+    info "rex_woocommerce_connector/__init__.py: present"
   else
-    warn "woocommerce_connector/__init__.py is missing -> Odoo ignores /mnt/extra-addons until it exists (see README)."
+    warn "rex_woocommerce_connector/__init__.py is missing -> Odoo ignores /mnt/extra-addons until it exists (see README)."
   fi
   echo
   echo "=== credentials ==="
