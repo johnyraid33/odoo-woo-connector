@@ -1,179 +1,268 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <title>Two-way Sync for WooCommerce — free, AGPL-3</title>
+  <meta charset="utf-8"/>
+  <title>Two-way Sync for WooCommerce</title>
 </head>
 <body>
+<!--
+  Odoo Apps Store page. The store strips style and script tags: use Bootstrap 5
+  classes, inline styles and Font Awesome 4 icons only, keep the file ASCII
+  (HTML entities for anything else). Preview: python3 dev/store/preview_description.py
+-->
+<section class="container" style="max-width: 1120px; font-family: 'Open Sans', Helvetica, Arial, sans-serif; color: #4f5162;">
 
-<section style="font-family: Helvetica, Arial, sans-serif; color: #1f2937; line-height: 1.55;">
+  <!-- Hero -->
+  <div style="background: #0f0d1c; background-image: linear-gradient(135deg, #0f0d1c 0%, #2a1a4a 55%, #123a38 100%); border-radius: 20px; padding: 56px 48px; margin: 8px 0 40px; text-align: center;">
+    <div style="font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: #a9a4c6; margin-bottom: 18px;">Odoo 19 &amp; 20 &middot; Community &amp; Enterprise &middot; Free &middot; AGPL-3</div>
+    <h2 style="font-size: 40px; line-height: 1.15; font-weight: 800; color: #ffffff; margin: 0 auto 18px; max-width: 780px; letter-spacing: -0.5px;">Your WooCommerce shop and Odoo, kept in step</h2>
+    <p style="font-size: 18px; line-height: 1.6; color: #cdc9de; margin: 0 auto; max-width: 740px;">Products, variations, stock, orders, refunds and tracking numbers move between the shop and Odoo on their own. Orders arrive with their taxes, coupons and shipping to the cent, refunds become credit notes, and the shop never sells stock that is already reserved.</p>
+    <div style="margin-top: 28px;">
+      <span style="display: inline-block; margin: 4px; padding: 8px 16px; border-radius: 999px; font-size: 13px; color: #ecebf6; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);"><i class="fa fa-shopping-cart" style="color: #8fe3cf; margin-right: 6px;"></i>Orders to the cent</span>
+      <span style="display: inline-block; margin: 4px; padding: 8px 16px; border-radius: 999px; font-size: 13px; color: #ecebf6; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);"><i class="fa fa-undo" style="color: #8fe3cf; margin-right: 6px;"></i>Refunds as credit notes</span>
+      <span style="display: inline-block; margin: 4px; padding: 8px 16px; border-radius: 999px; font-size: 13px; color: #ecebf6; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);"><i class="fa fa-cubes" style="color: #8fe3cf; margin-right: 6px;"></i>Stock without overselling</span>
+      <span style="display: inline-block; margin: 4px; padding: 8px 16px; border-radius: 999px; font-size: 13px; color: #ecebf6; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);"><i class="fa fa-language" style="color: #8fe3cf; margin-right: 6px;"></i>Guide: English &middot; &#1059;&#1082;&#1088;&#1072;&#1111;&#1085;&#1089;&#1100;&#1082;&#1072; &middot; &#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</span>
+    </div>
+  </div>
 
-    <!-- Title and short pitch -->
-    <h1 style="font-size: 30px; margin: 0 0 8px 0;">Two-way Sync for WooCommerce</h1>
-    <p style="font-size: 18px; color: #4b5563; margin: 0 0 18px 0;">
-        Free, open source two-way sync between a WooCommerce store and Odoo:
-        catalog, stock, orders, refunds and tracking numbers. No paid licence,
-        no external Python packages, no mandatory OCA modules.
-    </p>
-    <p style="font-size: 16px; margin: 0 0 8px 0;">
-        <strong>Works with Odoo 19.0 and 20.0</strong> (Community and Enterprise)
-        and with WooCommerce 3.5 and newer — tested against WooCommerce 11.2.2.
-    </p>
-    <p style="font-size: 14px; color: #6b7280; margin: 0 0 28px 0;">
-        Licence: AGPL-3.0 or later · Author: POLISHCHUK &amp; SONS LTD ·
-        Support: best effort, no paid support.
-    </p>
+  <!-- Key features -->
+  <div class="row g-3" style="margin-bottom: 24px;">
+    <div class="col-lg-4 col-md-6">
+      <div style="height: 100%; border: 1px solid #e8e6f0; border-radius: 14px; padding: 24px; background: #ffffff;">
+        <div style="width: 42px; height: 42px; border-radius: 10px; background: #f0eafb; color: #7f54b3; text-align: center; line-height: 42px; font-size: 18px; margin-bottom: 14px;"><i class="fa fa-tags"></i></div>
+        <div style="font-size: 16px; font-weight: 700; color: #1d1b26; margin-bottom: 6px;">Catalog from the shop</div>
+        <div style="font-size: 14px; line-height: 1.6;">Products, variations, attributes, prices, weights, descriptions and the main image, matched by WooCommerce id.</div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+      <div style="height: 100%; border: 1px solid #e8e6f0; border-radius: 14px; padding: 24px; background: #ffffff;">
+        <div style="width: 42px; height: 42px; border-radius: 10px; background: #e4f7f1; color: #1f8f73; text-align: center; line-height: 42px; font-size: 18px; margin-bottom: 14px;"><i class="fa fa-file-text-o"></i></div>
+        <div style="font-size: 16px; font-weight: 700; color: #1d1b26; margin-bottom: 6px;">Orders with the right taxes</div>
+        <div style="font-size: 14px; line-height: 1.6;">Lines, coupon discounts, shipping and fees, taxes matched by rate, and a total check against the shop.</div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+      <div style="height: 100%; border: 1px solid #e8e6f0; border-radius: 14px; padding: 24px; background: #ffffff;">
+        <div style="width: 42px; height: 42px; border-radius: 10px; background: #fdeaee; color: #c23a55; text-align: center; line-height: 42px; font-size: 18px; margin-bottom: 14px;"><i class="fa fa-undo"></i></div>
+        <div style="font-size: 16px; font-weight: 700; color: #1d1b26; margin-bottom: 6px;">Refunds as credit notes</div>
+        <div style="font-size: 14px; line-height: 1.6;">A refund in the shop becomes a posted credit note for exactly the amount refunded, once the order is invoiced.</div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+      <div style="height: 100%; border: 1px solid #e8e6f0; border-radius: 14px; padding: 24px; background: #ffffff;">
+        <div style="width: 42px; height: 42px; border-radius: 10px; background: #e7f0fe; color: #2f6fd6; text-align: center; line-height: 42px; font-size: 18px; margin-bottom: 14px;"><i class="fa fa-cubes"></i></div>
+        <div style="font-size: 16px; font-weight: 700; color: #1d1b26; margin-bottom: 6px;">Stock both ways</div>
+        <div style="font-size: 14px; line-height: 1.6;">Odoo or WooCommerce as the master. The available quantity is published, so reserved stock is never sold twice.</div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+      <div style="height: 100%; border: 1px solid #e8e6f0; border-radius: 14px; padding: 24px; background: #ffffff;">
+        <div style="width: 42px; height: 42px; border-radius: 10px; background: #fff1e3; color: #c46a12; text-align: center; line-height: 42px; font-size: 18px; margin-bottom: 14px;"><i class="fa fa-truck"></i></div>
+        <div style="font-size: 16px; font-weight: 700; color: #1d1b26; margin-bottom: 6px;">Tracking and cancellations</div>
+        <div style="font-size: 14px; line-height: 1.6;">A validated delivery sends its tracking number to the customer; a cancellation on either side reaches the other.</div>
+      </div>
+    </div>
+    <div class="col-lg-4 col-md-6">
+      <div style="height: 100%; border: 1px solid #e8e6f0; border-radius: 14px; padding: 24px; background: #ffffff;">
+        <div style="width: 42px; height: 42px; border-radius: 10px; background: #eeeff3; color: #4a4d5e; text-align: center; line-height: 42px; font-size: 18px; margin-bottom: 14px;"><i class="fa fa-list-alt"></i></div>
+        <div style="font-size: 16px; font-weight: 700; color: #1d1b26; margin-bottom: 6px;">Nothing silent</div>
+        <div style="font-size: 14px; line-height: 1.6;">A job queue with retries, an activity log for every warning and failure, and every webhook delivery on record.</div>
+      </div>
+    </div>
+  </div>
 
-    <img src="img/01_stores.png" alt="WooCommerce stores in Odoo: connection state, WooCommerce version, queue counters"
-         style="max-width: 100%; border: 1px solid #e5e7eb; border-radius: 6px;"/>
+  <!-- Verified -->
+  <div style="border-radius: 14px; padding: 18px 24px; margin-bottom: 44px; background: #f4fbf8; border: 1px solid #cdeee2; font-size: 14px; line-height: 1.6;">
+    <i class="fa fa-check-circle" style="color: #1f8f73; margin-right: 8px;"></i><b style="color: #1d1b26;">Verified against a real shop.</b> Every release runs an acceptance suite against a live WooCommerce 11.2.2 store on Odoo 19.0 and on Odoo 20.0: 89 checks covering catalog, orders, taxes, stock, deliveries, invoices, refunds, cancellations, webhooks and export. No mocks.
+  </div>
 
-    <img src="img/02_store_form.png" alt="Store configuration: URL, credentials, warehouse, stock master and synchronisation switches"
-         style="max-width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; margin-top: 12px;"/>
+  <!-- Tabs -->
+  <ul class="nav nav-tabs justify-content-center" role="tablist" style="margin-bottom: 32px; font-size: 15px;">
+    <li class="nav-item" role="presentation"><a class="nav-link active" id="wcs-tab-overview" data-bs-toggle="tab" href="#wcs-overview" role="tab" aria-controls="wcs-overview" aria-selected="true"><i class="fa fa-eye" style="margin-right: 6px;"></i>Overview</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link" id="wcs-tab-setup" data-bs-toggle="tab" href="#wcs-setup" role="tab" aria-controls="wcs-setup" aria-selected="false"><i class="fa fa-cogs" style="margin-right: 6px;"></i>Setup</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link" id="wcs-tab-orders" data-bs-toggle="tab" href="#wcs-orders" role="tab" aria-controls="wcs-orders" aria-selected="false"><i class="fa fa-file-text-o" style="margin-right: 6px;"></i>Orders &amp; refunds</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link" id="wcs-tab-stock" data-bs-toggle="tab" href="#wcs-stock" role="tab" aria-controls="wcs-stock" aria-selected="false"><i class="fa fa-cubes" style="margin-right: 6px;"></i>Catalog &amp; stock</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link" id="wcs-tab-ops" data-bs-toggle="tab" href="#wcs-ops" role="tab" aria-controls="wcs-ops" aria-selected="false"><i class="fa fa-tasks" style="margin-right: 6px;"></i>Operations</a></li>
+    <li class="nav-item" role="presentation"><a class="nav-link" id="wcs-tab-faq" data-bs-toggle="tab" href="#wcs-faq" role="tab" aria-controls="wcs-faq" aria-selected="false"><i class="fa fa-question-circle" style="margin-right: 6px;"></i>FAQ</a></li>
+  </ul>
 
-    <!-- Why this module exists -->
-    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Why another connector</h2>
-    <p style="font-size: 16px;">
-        Both systems are open source, and the bridge between them should be too.
-        This module was written with the failures of commercial connectors in
-        mind: duplicated products after a SKU change, orders imported twice by a
-        webhook and a cron, prices with tax imported as net, jobs stuck in
-        pending after a worker crash, silent failures with no trace.
-    </p>
-    <ul style="font-size: 16px;">
-        <li><strong>Identity by WooCommerce ID</strong>, SKU only to adopt an existing Odoo product on the first match.</li>
-        <li><strong>Idempotent import</strong>: a webhook and the poll can race without creating a duplicate.</li>
-        <li><strong>Queue with retries and a lease</strong> instead of silent failures, with an activity log for every error.</li>
-        <li><strong>Taxes matched by rate</strong>, never by a hard-coded name, plus a total comparison that warns instead of absorbing a difference.</li>
-    </ul>
+  <div class="tab-content">
 
-    <!-- Catalog -->
-    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Catalog: products, variations, attributes, images</h2>
-    <ul style="font-size: 16px;">
-        <li>Import of products, variations, attributes, prices, weight, descriptions and the main image.</li>
-        <li>Export of Odoo products into WooCommerce, with the image uploaded through the WordPress media library.</li>
-        <li>Matching by WooCommerce ID first; the SKU is used once, to adopt an existing product, and an export adopts a WooCommerce product with the same SKU instead of duplicating it.</li>
-        <li>Archiving, never deletion: a product removed in WooCommerce is archived in Odoo and keeps its sales history.</li>
-        <li>One broken product or image never stops the synchronisation: it is logged and the run continues.</li>
-    </ul>
+    <!-- Overview -->
+    <div class="tab-pane fade show active" id="wcs-overview" role="tabpanel" aria-labelledby="wcs-tab-overview">
+      <div class="row align-items-center g-4" style="margin-bottom: 40px;">
+        <div class="col-lg-5">
+          <div style="font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #7f54b3; font-weight: 700; margin-bottom: 8px;">Sales order</div>
+          <h3 style="font-size: 24px; font-weight: 700; color: #1d1b26; margin: 0 0 12px;">The shop order, as Odoo needs it</h3>
+          <p style="font-size: 15px; line-height: 1.7; margin: 0 0 14px;">Each WooCommerce order becomes a sale order with the customer, the products, the shipping line and the taxes of every line. The customer note and the payment method are kept, and the order can be confirmed on arrival.</p>
+          <div style="font-size: 14px; line-height: 1.9;">
+            <div><i class="fa fa-check" style="color: #1f8f73; margin-right: 8px;"></i>19% and 7% on different lines, totals equal to the cent</div>
+            <div><i class="fa fa-check" style="color: #1f8f73; margin-right: 8px;"></i>Coupons become line discounts</div>
+            <div><i class="fa fa-check" style="color: #1f8f73; margin-right: 8px;"></i>Guests and registered customers, matched by e-mail</div>
+          </div>
+        </div>
+        <div class="col-lg-7"><img src="img/02_sale_order.png" alt="Sale order imported from WooCommerce with lines, taxes and shipping" class="img-fluid" style="border: 1px solid #e8e6f0; border-radius: 12px; box-shadow: 0 14px 34px rgba(20,20,40,0.10);"/></div>
+      </div>
+      <div class="row align-items-center g-4">
+        <div class="col-lg-7 order-lg-1 order-2"><img src="img/03_orders.png" alt="Sales orders imported from the shop" class="img-fluid" style="border: 1px solid #e8e6f0; border-radius: 12px; box-shadow: 0 14px 34px rgba(20,20,40,0.10);"/></div>
+        <div class="col-lg-5 order-lg-2 order-1">
+          <div style="font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #7f54b3; font-weight: 700; margin-bottom: 8px;">Webhooks and a safety poll</div>
+          <h3 style="font-size: 24px; font-weight: 700; color: #1d1b26; margin: 0 0 12px;">Fast, and nothing lost</h3>
+          <p style="font-size: 15px; line-height: 1.7; margin: 0;">Signed webhooks bring a new order within a minute. A poll every 10 minutes repairs anything a webhook missed, and both paths end in the same idempotent import, so an order is never created twice.</p>
+        </div>
+      </div>
+    </div>
 
-    <!-- Stock -->
-    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Stock in both directions</h2>
-    <ul style="font-size: 16px;">
-        <li>Three modes per store: Odoo is the master, WooCommerce is the master, or the stock sync is off.</li>
-        <li>Push writes the on-hand or the available quantity, through the product and variation endpoints, under a PostgreSQL advisory lock.</li>
-        <li>Pull creates traceable inventory adjustments in Odoo instead of writing quants directly.</li>
-        <li>The stock actions are installed disabled, so nothing is written to a live shop before you decide.</li>
-    </ul>
+    <!-- Setup -->
+    <div class="tab-pane fade" id="wcs-setup" role="tabpanel" aria-labelledby="wcs-tab-setup">
+      <div class="row g-4">
+        <div class="col-lg-5">
+          <div style="margin-bottom: 22px;">
+            <div style="display: inline-block; width: 32px; height: 32px; border-radius: 9px; background: #1d1b26; color: #ffffff; text-align: center; line-height: 32px; font-weight: 700; margin-right: 10px;">1</div><b style="color: #1d1b26;">Create a REST key in WooCommerce</b>
+            <p style="font-size: 14px; line-height: 1.7; margin: 8px 0 0 42px;">Settings &gt; Advanced &gt; REST API &gt; Add key, permission <b>Read/Write</b>. The shop must be served over HTTPS.</p>
+          </div>
+          <div style="margin-bottom: 22px;">
+            <div style="display: inline-block; width: 32px; height: 32px; border-radius: 9px; background: #1d1b26; color: #ffffff; text-align: center; line-height: 32px; font-weight: 700; margin-right: 10px;">2</div><b style="color: #1d1b26;">Add the store in Odoo</b>
+            <p style="font-size: 14px; line-height: 1.7; margin: 8px 0 0 42px;"><b>WooCommerce &gt; Stores &gt; New</b>: the shop address, the key and the secret, the warehouse and the pricelist.</p>
+          </div>
+          <div style="margin-bottom: 22px;">
+            <div style="display: inline-block; width: 32px; height: 32px; border-radius: 9px; background: #1d1b26; color: #ffffff; text-align: center; line-height: 32px; font-weight: 700; margin-right: 10px;">3</div><b style="color: #1d1b26;">Test the connection</b>
+            <p style="font-size: 14px; line-height: 1.7; margin: 8px 0 0 42px;">Odoo reads the WooCommerce version, the currency and the tax convention of the shop.</p>
+          </div>
+          <div style="margin-bottom: 22px;">
+            <div style="display: inline-block; width: 32px; height: 32px; border-radius: 9px; background: #1d1b26; color: #ffffff; text-align: center; line-height: 32px; font-weight: 700; margin-right: 10px;">4</div><b style="color: #1d1b26;">Register the webhooks</b>
+            <p style="font-size: 14px; line-height: 1.7; margin: 8px 0 0 42px;">One button creates the order, product and customer webhooks with a signing secret. It needs a public HTTPS address for Odoo; without it, the poll alone keeps the data in sync.</p>
+          </div>
+          <div>
+            <div style="display: inline-block; width: 32px; height: 32px; border-radius: 9px; background: #1d1b26; color: #ffffff; text-align: center; line-height: 32px; font-weight: 700; margin-right: 10px;">5</div><b style="color: #1d1b26;">Choose what runs</b>
+            <p style="font-size: 14px; line-height: 1.7; margin: 8px 0 0 42px;">Order and product polls run from the start. Stock push, stock pull, catalogue export and customer import are installed <b>disabled</b>: nothing is written to a live shop before you decide.</p>
+          </div>
+        </div>
+        <div class="col-lg-7"><img src="img/01_store_form.png" alt="Store form: connection, accounting, synchronisation and stock settings" class="img-fluid" style="border: 1px solid #e8e6f0; border-radius: 12px; box-shadow: 0 14px 34px rgba(20,20,40,0.10);"/></div>
+      </div>
+    </div>
 
-    <!-- Orders and money -->
-    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Orders, customers and money</h2>
-    <ul style="font-size: 16px;">
-        <li>Orders imported by webhook and by a scheduled poll, with line items, line discounts, shipping lines, fee lines and taxes.</li>
-        <li>Taxes matched to Odoo sale taxes by rate, with a preference for a tax that has an account and then the company default.</li>
-        <li>Tax-inclusive stores supported: gross amounts are converted to net before the line is written, Odoo adds the tax back.</li>
-        <li>After the import the Odoo total is compared with the WooCommerce total; a difference above the tolerance is logged, never absorbed.</li>
-        <li>Customers matched by e-mail or created, guest checkout supported, addresses filled only when empty.</li>
-    </ul>
+    <!-- Orders & refunds -->
+    <div class="tab-pane fade" id="wcs-orders" role="tabpanel" aria-labelledby="wcs-tab-orders">
+      <div class="row align-items-center g-4" style="margin-bottom: 32px;">
+        <div class="col-lg-5">
+          <h3 style="font-size: 24px; font-weight: 700; color: #1d1b26; margin: 0 0 12px;">Refunds become credit notes</h3>
+          <p style="font-size: 15px; line-height: 1.7; margin: 0 0 14px;">WooCommerce has no refund webhook, so the connector reads refunds from their order. As soon as an invoiced order carries a refund without a credit note, one is created and posted.</p>
+          <div style="font-size: 14px; line-height: 1.9;">
+            <div><i class="fa fa-check" style="color: #1f8f73; margin-right: 8px;"></i>Refunded lines with their quantity and tax</div>
+            <div><i class="fa fa-check" style="color: #1f8f73; margin-right: 8px;"></i>Shipping and amount-only refunds on one extra line</div>
+            <div><i class="fa fa-check" style="color: #1f8f73; margin-right: 8px;"></i>Credit note total = amount refunded, never twice</div>
+          </div>
+        </div>
+        <div class="col-lg-7"><img src="img/04_credit_note.png" alt="Credit note created from a WooCommerce refund" class="img-fluid" style="border: 1px solid #e8e6f0; border-radius: 12px; box-shadow: 0 14px 34px rgba(20,20,40,0.10);"/></div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6"><div style="height: 100%; background: #f6f5fa; border-radius: 14px; padding: 22px;"><div style="font-weight: 700; color: #1d1b26; margin-bottom: 6px;"><i class="fa fa-percent" style="color: #7f54b3; margin-right: 8px;"></i>Taxes by rate</div><div style="font-size: 14px; line-height: 1.6;">Each WooCommerce rate is mapped to an Odoo sale tax with the same percentage, never by name. Two rates with the same percentage from different tax classes are kept apart.</div></div></div>
+        <div class="col-md-6"><div style="height: 100%; background: #f6f5fa; border-radius: 14px; padding: 22px;"><div style="font-weight: 700; color: #1d1b26; margin-bottom: 6px;"><i class="fa fa-balance-scale" style="color: #7f54b3; margin-right: 8px;"></i>Total check</div><div style="font-size: 14px; line-height: 1.6;">After the import, the Odoo total is compared with the shop total. A difference above the tolerance is written to the activity log, never absorbed.</div></div></div>
+        <div class="col-md-6"><div style="height: 100%; background: #f6f5fa; border-radius: 14px; padding: 22px;"><div style="font-weight: 700; color: #1d1b26; margin-bottom: 6px;"><i class="fa fa-ban" style="color: #7f54b3; margin-right: 8px;"></i>Cancellations both ways</div><div style="font-size: 14px; line-height: 1.6;">Cancelled, refunded or trashed in the shop cancels the Odoo order. Cancelled in Odoo cancels the shop order. A refunded order stays refunded.</div></div></div>
+        <div class="col-md-6"><div style="height: 100%; background: #f6f5fa; border-radius: 14px; padding: 22px;"><div style="font-weight: 700; color: #1d1b26; margin-bottom: 6px;"><i class="fa fa-truck" style="color: #7f54b3; margin-right: 8px;"></i>Tracking numbers</div><div style="font-size: 14px; line-height: 1.6;">Validating the delivery sends the carrier and the tracking number to the shop as a note the customer sees.</div></div></div>
+      </div>
+    </div>
 
-    <!-- Refunds and fulfilment -->
-    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Refunds and fulfilment</h2>
-    <ul style="font-size: 16px;">
-        <li>Partial refunds imported as <strong>partial credit notes</strong>, not as a reversal of the whole invoice.</li>
-        <li>Amount-only refunds credit exactly what the customer received back: the tax part of such a refund is not reversed, and the credit note is logged for the accountant.</li>
-        <li>A refund is idempotent: the same WooCommerce refund can never produce two credit notes.</li>
-        <li>Validating an outgoing delivery sends the tracking number to WooCommerce as an order note, visible to the customer.</li>
-        <li>Cancelling a sale order in Odoo cancels the matching order in WooCommerce.</li>
-    </ul>
-
-    <img src="img/05_sale_order.png" alt="Sale order imported from WooCommerce with lines, taxes, delivery and the WooCommerce order reference"
-         style="max-width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; margin-top: 12px;"/>
+    <!-- Catalog & stock -->
+    <div class="tab-pane fade" id="wcs-stock" role="tabpanel" aria-labelledby="wcs-tab-stock">
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <h3 style="font-size: 22px; font-weight: 700; color: #1d1b26; margin: 0 0 12px;"><i class="fa fa-tags" style="color: #7f54b3; margin-right: 8px;"></i>Catalog</h3>
+          <div style="font-size: 14px; line-height: 1.8;">
+            <div><i class="fa fa-check" style="color: #1f8f73; margin-right: 8px;"></i>Products, variations and attributes become Odoo products and variants.</div>
+            <div><i class="fa fa-check" style="color: #1f8f73; margin-right: 8px;"></i>Variation prices are kept for products with one varying attribute.</div>
+            <div><i class="fa fa-check" style="color: #1f8f73; margin-right: 8px;"></i>The WooCommerce id is the identity; a SKU adopts an existing Odoo product once.</div>
+            <div><i class="fa fa-check" style="color: #1f8f73; margin-right: 8px;"></i>A product deleted in the shop is archived in Odoo, with its sales history.</div>
+            <div><i class="fa fa-check" style="color: #1f8f73; margin-right: 8px;"></i>Products created in Odoo can be exported, with their image; products that came from the shop keep their description and prices there.</div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <h3 style="font-size: 22px; font-weight: 700; color: #1d1b26; margin: 0 0 12px;"><i class="fa fa-cubes" style="color: #7f54b3; margin-right: 8px;"></i>Stock</h3>
+          <div style="border: 1px solid #e8e6f0; border-radius: 14px; overflow: hidden;">
+            <table class="table" style="margin: 0; font-size: 14px;">
+              <thead><tr style="background: #f6f5fa;"><th style="padding: 12px 16px; color: #1d1b26;">Stock master</th><th style="padding: 12px 16px; color: #1d1b26;">What happens</th></tr></thead>
+              <tbody>
+                <tr><td style="padding: 12px 16px;"><b>Odoo</b></td><td style="padding: 12px 16px;">The available quantity (on hand minus reserved) is pushed to the products and variations of the shop.</td></tr>
+                <tr><td style="padding: 12px 16px;"><b>WooCommerce</b></td><td style="padding: 12px 16px;">Shop quantities are pulled as validated, traceable inventory adjustments.</td></tr>
+                <tr><td style="padding: 12px 16px;"><b>Disabled</b></td><td style="padding: 12px 16px;">Stock is left alone in both systems.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="font-size: 13px; color: #7a7c8c; margin: 12px 0 0;">The parent of a variable product is skipped: its variations carry the stock.</p>
+        </div>
+      </div>
+    </div>
 
     <!-- Operations -->
-    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Operations: queue, log, webhooks</h2>
-    <ul style="font-size: 16px;">
-        <li><strong>Jobs</strong>: state, attempts, next run, duration, payload, last error; Retry, Cancel and Run now.</li>
-        <li>Lease and reclaim: a crashed worker cannot leave a job running forever; a failed job retries with exponential backoff and is dead-lettered after the configured attempts.</li>
-        <li><strong>Activity log</strong>: one line per batch, per warning and per failure, with the HTTP status and the WooCommerce error code.</li>
-        <li><strong>Webhook deliveries</strong>: every delivery, its topic, its deduplication key and its processing state.</li>
-        <li>HMAC-SHA256 signature check on the raw body, deduplication by delivery id, 200 answered immediately and the work done in the queue.</li>
-        <li>A health page at /woocommerce/status for a quick support check.</li>
-    </ul>
+    <div class="tab-pane fade" id="wcs-ops" role="tabpanel" aria-labelledby="wcs-tab-ops">
+      <div class="row align-items-center g-4" style="margin-bottom: 36px;">
+        <div class="col-lg-5">
+          <h3 style="font-size: 24px; font-weight: 700; color: #1d1b26; margin: 0 0 12px;">A queue you can see</h3>
+          <p style="font-size: 15px; line-height: 1.7; margin: 0;">Every call to the shop is a job with its state, attempts and last error. Failed jobs back off and retry, a crashed worker cannot hold a job forever, and each job runs in its own transaction. Retry, cancel or run a job from the list.</p>
+        </div>
+        <div class="col-lg-7"><img src="img/05_jobs.png" alt="Synchronisation jobs" class="img-fluid" style="border: 1px solid #e8e6f0; border-radius: 12px;"/></div>
+      </div>
+      <div class="row align-items-center g-4" style="margin-bottom: 36px;">
+        <div class="col-lg-7 order-lg-1 order-2"><img src="img/06_activity_log.png" alt="Activity log" class="img-fluid" style="border: 1px solid #e8e6f0; border-radius: 12px;"/></div>
+        <div class="col-lg-5 order-lg-2 order-1">
+          <h3 style="font-size: 24px; font-weight: 700; color: #1d1b26; margin: 0 0 12px;">One log for what happened</h3>
+          <p style="font-size: 15px; line-height: 1.7; margin: 0;">Imports, exports, warnings and failures, with the HTTP status and the WooCommerce error code when something goes wrong. A support question starts here, not in the server log.</p>
+        </div>
+      </div>
+      <div class="row align-items-center g-4">
+        <div class="col-lg-5">
+          <h3 style="font-size: 24px; font-weight: 700; color: #1d1b26; margin: 0 0 12px;">Signed webhooks</h3>
+          <p style="font-size: 15px; line-height: 1.7; margin: 0;">Each delivery is checked with its HMAC-SHA256 signature over the raw body, deduplicated by its delivery id, answered at once and processed by the queue.</p>
+        </div>
+        <div class="col-lg-7"><img src="img/07_webhooks.png" alt="Webhook deliveries" class="img-fluid" style="border: 1px solid #e8e6f0; border-radius: 12px;"/></div>
+      </div>
+    </div>
 
-    <img src="img/03_jobs.png" alt="Connector job queue: done and failed jobs with attempts, timestamps and a retry action"
-         style="max-width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; margin-top: 12px;"/>
+    <!-- FAQ -->
+    <div class="tab-pane fade" id="wcs-faq" role="tabpanel" aria-labelledby="wcs-tab-faq">
+      <div class="accordion" id="wcs-faq-list" style="max-width: 880px; margin: 0 auto;">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="wcs-q1"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#wcs-a1" aria-expanded="true" aria-controls="wcs-a1" style="font-weight: 600; color: #1d1b26;">What do I need?</button></h2>
+          <div id="wcs-a1" class="accordion-collapse collapse show" aria-labelledby="wcs-q1" data-bs-parent="#wcs-faq-list"><div class="accordion-body" style="font-size: 14px; line-height: 1.7;">Odoo 19.0 or 20.0 (Community or Enterprise) with Sales, Inventory, Invoicing and Delivery; a WooCommerce shop served over HTTPS; a REST key with Read/Write permission. A public HTTPS address for Odoo is needed only for webhooks. No extra Python package and no OCA module.</div></div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="wcs-q2"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#wcs-a2" aria-expanded="false" aria-controls="wcs-a2" style="font-weight: 600; color: #1d1b26;">Which WooCommerce versions are tested?</button></h2>
+          <div id="wcs-a2" class="accordion-collapse collapse" aria-labelledby="wcs-q2" data-bs-parent="#wcs-faq-list"><div class="accordion-body" style="font-size: 14px; line-height: 1.7;">WooCommerce 11.2.2 and 8.9.1. The connector uses the standard REST API v3, which older versions also provide, but those are not tested.</div></div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="wcs-q3"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#wcs-a3" aria-expanded="false" aria-controls="wcs-a3" style="font-weight: 600; color: #1d1b26;">Can I connect several shops?</button></h2>
+          <div id="wcs-a3" class="accordion-collapse collapse" aria-labelledby="wcs-q3" data-bs-parent="#wcs-faq-list"><div class="accordion-body" style="font-size: 14px; line-height: 1.7;">Yes. Each store has its own settings, mappings and webhook secret; orders, products and customers of two shops never mix. Make one Odoo database the stock master of a shop, not two.</div></div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="wcs-q4"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#wcs-a4" aria-expanded="false" aria-controls="wcs-a4" style="font-weight: 600; color: #1d1b26;">What about prices entered with tax?</button></h2>
+          <div id="wcs-a4" class="accordion-collapse collapse" aria-labelledby="wcs-q4" data-bs-parent="#wcs-faq-list"><div class="accordion-body" style="font-size: 14px; line-height: 1.7;">WooCommerce reports order lines without tax on every shop, so orders import the same way. On a shop with prices entered with tax, an order can differ by one cent because the shop rounds the gross price; the total check reports anything larger.</div></div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="wcs-q5"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#wcs-a5" aria-expanded="false" aria-controls="wcs-a5" style="font-weight: 600; color: #1d1b26;">What is not covered?</button></h2>
+          <div id="wcs-a5" class="accordion-collapse collapse" aria-labelledby="wcs-q5" data-bs-parent="#wcs-faq-list"><div class="accordion-body" style="font-size: 14px; line-height: 1.7;">Orders in another currency than the shop's, export of variations, compound taxes, kits and bills of materials, subscriptions, bookings and POS plugins, more than one warehouse per store, and Odoo versions before 19.0. Each limit is described in the user guide.</div></div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="wcs-q6"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#wcs-a6" aria-expanded="false" aria-controls="wcs-a6" style="font-weight: 600; color: #1d1b26;">Where is the documentation?</button></h2>
+          <div id="wcs-a6" class="accordion-collapse collapse" aria-labelledby="wcs-q6" data-bs-parent="#wcs-faq-list"><div class="accordion-body" style="font-size: 14px; line-height: 1.7;">A full user guide ships with the module in the doc folder, in English, Ukrainian and Russian: setup, every screen, every synchronisation direction, limits and troubleshooting. The source is on <a href="https://github.com/johnyraid33/odoo-woo-connector" style="color: #7f54b3; font-weight: 600;">GitHub</a>.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <img src="img/04_activity_log.png" alt="Connector activity log with levels, HTTP status and WooCommerce error codes"
-         style="max-width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; margin-top: 12px;"/>
-
-    <!-- Installation -->
-    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Installation</h2>
-    <ol style="font-size: 16px;">
-        <li>Copy the <code>rex_woocommerce_connector</code> directory into an Odoo addons path.</li>
-        <li>Restart Odoo, then <em>Apps &gt; Update Apps List &gt; Install Two-way Sync for WooCommerce</em>.</li>
-        <li>In WooCommerce: <em>Settings &gt; Advanced &gt; REST API &gt; Add key</em>, permissions <em>Read/Write</em>.</li>
-        <li>In Odoo: <em>WooCommerce &gt; Stores &gt; New</em>, paste the URL, the consumer key and the secret, choose the warehouse and the pricelist.</li>
-        <li>Press <em>Test connection</em>, then <em>Register webhooks</em> (requires a public HTTPS <code>web.base.url</code>).</li>
-        <li>Enable the scheduled actions you need.</li>
-    </ol>
-    <p style="font-size: 15px;">
-        The full operating manual — setup, all screens, every synchronisation direction,
-        limitations and troubleshooting — is the user guide shipped with the module:
-        <code>rex_woocommerce_connector/doc/USER_GUIDE.md</code>
-        (also in Ukrainian and Russian).
-    </p>
-
-    <!-- Requirements -->
-    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Requirements</h2>
-    <ul style="font-size: 16px;">
-        <li>Odoo 19.0 or 20.0, Community or Enterprise, with <code>sale_management</code>, <code>stock</code>, <code>account</code>, <code>delivery</code> and <code>mail</code>.</li>
-        <li>WooCommerce 3.5 or newer, permalinks enabled and the store served over <strong>HTTPS</strong>: WooCommerce 11 refuses REST credentials over plain HTTP.</li>
-        <li>A WooCommerce REST API key with Read/Write permissions.</li>
-        <li>A public HTTPS address for Odoo if you want webhooks; the polling import works without them.</li>
-        <li>No pip packages beyond <code>requests</code>, which ships with Odoo. No OCA modules.</li>
-    </ul>
-
-    <!-- What is not in 1.0 -->
-    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Deliberately out of scope in 1.0</h2>
-    <ul style="font-size: 16px;">
-        <li>Metafield mapping engine.</li>
-        <li>Coupon lines as separate objects (a line discount preserves the value of a coupon applied to products).</li>
-        <li>Multi-currency orders.</li>
-        <li>Kit and BoM products.</li>
-        <li>Subscriptions, bookings and POS plugins.</li>
-        <li>More than one warehouse per store.</li>
-        <li>Odoo versions older than 19.0.</li>
-    </ul>
-
-    <!-- Support -->
-    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Support</h2>
-    <p style="font-size: 16px;">
-        This is a community project maintained on a best-effort basis. There is
-        <strong>no paid support</strong> and no guaranteed response time. Bug reports
-        and pull requests are welcome. When you open an issue, include the connector
-        version (1.0.0), the Odoo version, the WooCommerce version, the steps to
-        reproduce and the relevant lines of the activity log — with the HTTP status
-        and the WooCommerce error code.
-    </p>
-    <p style="font-size: 16px;">
-        Supported Odoo versions: 19.0 and 20.0.<br/>
-        Project: POLISHCHUK &amp; SONS LTD — <a href="https://rex.cy">https://rex.cy</a> ·
-        <a href="mailto:info@rex.cy">info@rex.cy</a>
-    </p>
-
-    <!-- Licence -->
-    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Licence</h2>
-    <p style="font-size: 16px;">
-        <strong>GNU Affero General Public License v3.0 or later (AGPL-3.0).</strong>
-        Free for commercial use, modification and redistribution under the terms of
-        the licence; if you run a modified version as a network service, the source
-        of that version must be offered to its users.
-    </p>
-    <p style="font-size: 14px; color: #6b7280;">
-        Copyright (C) 2026 POLISHCHUK &amp; SONS LTD. The full licence text is in the
-        <code>LICENSE</code> file of the distribution.
-    </p>
-
+  <!-- Support -->
+  <div style="margin: 56px 0 24px; border-radius: 18px; padding: 32px 36px; background: #f6f5fa; border: 1px solid #e8e6f0;">
+    <div class="row align-items-center g-3">
+      <div class="col-md-8">
+        <div style="font-size: 20px; font-weight: 700; color: #1d1b26; margin-bottom: 4px;">Questions or a problem?</div>
+        <div style="font-size: 14px; line-height: 1.6;">Write to <a href="mailto:info@rex.cy" style="color: #7f54b3; font-weight: 600;">info@rex.cy</a> or open an issue on <a href="https://github.com/johnyraid33/odoo-woo-connector/issues" style="color: #7f54b3; font-weight: 600;">GitHub</a>. Please include the Odoo and WooCommerce versions and the line from <b>WooCommerce &gt; Activity log</b>.</div>
+      </div>
+      <div class="col-md-4" style="text-align: right;">
+        <a href="mailto:info@rex.cy" style="display: inline-block; padding: 12px 22px; border-radius: 10px; background: #1d1b26; color: #ffffff; font-weight: 600; text-decoration: none;"><i class="fa fa-envelope" style="margin-right: 8px;"></i>Contact support</a>
+      </div>
+    </div>
+  </div>
+  <p style="font-size: 12px; text-align: center; color: #8a8c9a; margin: 0 0 24px;">Two-way Sync for WooCommerce 1.0.3 &middot; POLISHCHUK &amp; SONS LTD &middot; <a href="https://rex.cy" style="color: #8a8c9a;">rex.cy</a> &middot; License AGPL-3.0 &middot; WooCommerce is a trademark of Automattic Inc.; this module is not affiliated with or endorsed by Automattic.</p>
 </section>
-
 </body>
 </html>
