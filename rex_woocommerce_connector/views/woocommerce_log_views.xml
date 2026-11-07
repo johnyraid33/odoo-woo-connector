@@ -10,8 +10,8 @@
                 <field name="store_id"/>
                 <field name="level" widget="badge"/>
                 <field name="message"/>
-                <field name="http_status"/>
-                <field name="woo_code"/>
+                <field name="http_status" optional="hide"/>
+                <field name="woo_code" optional="hide"/>
                 <field name="job_id"/>
             </list>
         </field>

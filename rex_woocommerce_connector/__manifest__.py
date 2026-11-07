@@ -15,11 +15,11 @@
     'depends': ['sale_management', 'stock', 'account', 'delivery', 'mail'],
     'external_dependencies': {'python': ['requests']},
     'images': [
-        'static/description/img/01_stores.png',
-        'static/description/img/02_store_form.png',
-        'static/description/img/03_jobs.png',
-        'static/description/img/04_activity_log.png',
-        'static/description/img/05_sale_order.png',
+        'static/description/img/cover.png',
+        'static/description/img/02_sale_order.png',
+        'static/description/img/04_credit_note.png',
+        'static/description/img/01_store_form.png',
+        'static/description/img/05_jobs.png',
     ],
     'data': [
         'security/woocommerce_security.xml',

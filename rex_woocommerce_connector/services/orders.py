@@ -10,6 +10,7 @@ Money rules from ARCHITECTURE.md, section 4:
   logged instead of being silently absorbed.
 """
 
+import html
 import logging
 from datetime import datetime, timezone
 
@@ -190,9 +191,8 @@ def _line_values(env, store, order, line, tax_map):
     if subtotal:
         discount = max(0.0, min(100.0, (subtotal - total) / subtotal * 100.0))
     tax_ids = _tax_ids(line, tax_map)
-    return {
+    values = {
         'product_id': product.id,
-        'name': line.get('name') or product.display_name,
         'product_uom_qty': quantity,
         # WooCommerce reports order line subtotals *excluding* tax on every
         # store, including stores whose product prices are entered with tax.
@@ -202,6 +202,13 @@ def _line_values(env, store, order, line, tax_map):
         'tax_ids': [Command.set(tax_ids)],
         'customer_lead': 0,
     }
+    # Odoo builds the line description from the product. The WooCommerce name is
+    # only kept when it says something more (a variation label, a renamed item);
+    # repeating the product name shows it twice on the order and the invoice.
+    name = html.unescape((line.get('name') or '').strip())
+    if name and name not in (product.name, product.display_name):
+        values['name'] = name
+    return values
 
 
 def net_price_to_store(env, store, price, taxes):
@@ -490,14 +497,17 @@ def _refund_lines(env, store, invoice, refund):
         # WooCommerce line totals are net of tax and the refund amount includes
         # tax: compare like with like, otherwise the tax is credited twice.
         lines_total += total + abs(_to_float(item.get('total_tax')))
-        commands.append(Command.create({
+        values = {
             'product_id': product.id,
-            'name': item.get('name') or product.display_name,
             # A credit note carries positive quantities; its type makes it a credit.
             'quantity': quantity,
             'price_unit': price,
             'tax_ids': [Command.set(tax_ids.ids)],
-        }))
+        }
+        name = html.unescape((item.get('name') or '').strip())
+        if name and name not in (product.name, product.display_name):
+            values['name'] = name
+        commands.append(Command.create(values))
     amount = abs(_to_float(refund.get('amount')))
     difference = round(amount - lines_total, 2)
     if amount and abs(difference) > 0.01:
