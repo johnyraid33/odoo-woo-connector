@@ -14,6 +14,13 @@
     'license': 'AGPL-3',
     'depends': ['sale_management', 'stock', 'account', 'delivery', 'mail'],
     'external_dependencies': {'python': ['requests']},
+    'images': [
+        'static/description/img/01_stores.png',
+        'static/description/img/02_store_form.png',
+        'static/description/img/03_jobs.png',
+        'static/description/img/04_activity_log.png',
+        'static/description/img/05_sale_order.png',
+    ],
     'data': [
         'security/woocommerce_security.xml',
         'data/ir_cron.xml',

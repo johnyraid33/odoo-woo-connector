@@ -1,5 +1,8 @@
 # WooCommerce Connector for Odoo
 
+[![Tests](https://github.com/johnyraid33/odoo-woo-connector/actions/workflows/tests.yml/badge.svg)](https://github.com/johnyraid33/odoo-woo-connector/actions/workflows/tests.yml)
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
+
 Free and open source (AGPL-3.0) two-way connector between WooCommerce and Odoo 19.0 / 20.0.
 
 The project exists because the two systems are open source and the bridge between them
@@ -44,7 +47,27 @@ No pip install, no OCA queue_job, no base_multi_image.
 4. Press Test connection, then Register webhooks.
 5. Enable the scheduled actions.
 
-A detailed guide is in woocommerce_connector/doc/USER_GUIDE.md.
+A detailed guide is in woocommerce_connector/doc/USER_GUIDE.md, with Ukrainian
+and Russian translations next to it.
+
+## Repository layout
+
+| Path | What it is |
+| --- | --- |
+| woocommerce_connector/ | the Odoo module |
+| woocommerce_connector/doc/ | user guides (English, Ukrainian, Russian) |
+| dev/ | reproducible WordPress + WooCommerce + Odoo stack for verification |
+| ARCHITECTURE.md | design rules and the failures they prevent |
+| CONTRIBUTING.md | how to set up, test and send a change |
+| RELEASING.md | how a version branch and a release are made |
+| TRANSLATING.md | how to export the template and add a language |
+| SECURITY.md | how to report a vulnerability |
+
+## Links
+
+* Releases and ready packages: https://github.com/johnyraid33/odoo-woo-connector/releases
+* Issue tracker: https://github.com/johnyraid33/odoo-woo-connector/issues
+* Version branches: 20.0 (Odoo 20.0), 19.0 (Odoo 19.0)
 
 ## Support policy
 

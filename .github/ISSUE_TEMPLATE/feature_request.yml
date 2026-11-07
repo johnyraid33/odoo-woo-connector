@@ -1,0 +1,41 @@
+name: Feature request
+description: Suggest a synchronisation direction or an improvement
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The 1.0 scope is deliberately narrow. Metafields, coupons, multi-currency,
+        kit/BoM products and POS or subscription plugins are out of scope for now.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Catalog import
+        - Catalog export
+        - Stock
+        - Orders
+        - Refunds
+        - Tracking numbers
+        - Queue or activity log
+        - Documentation or translations
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What real workflow is impossible or painful today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour
+      description: What should happen, and where in the Odoo interface?
+  - type: input
+    id: woo-fields
+    attributes:
+      label: WooCommerce fields or endpoints involved
+      description: If you know them, for example meta_data keys or a REST resource.

@@ -1,0 +1,70 @@
+name: Bug report
+description: Something does not work in the connector
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. A connector bug is almost always reproducible only with exact versions, so please fill every field.
+        Do not paste consumer secrets, application passwords or full webhook secrets.
+  - type: input
+    id: module-version
+    attributes:
+      label: Connector version
+      description: From Apps, or the branch/commit you installed.
+      placeholder: 20.0.1.0.0
+    validations:
+      required: true
+  - type: input
+    id: odoo-version
+    attributes:
+      label: Odoo version
+      placeholder: 20.0 Community
+    validations:
+      required: true
+  - type: input
+    id: woo-version
+    attributes:
+      label: WooCommerce and WordPress versions
+      placeholder: WooCommerce 11.2.2, WordPress 7.1.4
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Connection or credentials
+        - Catalog import
+        - Catalog export
+        - Stock
+        - Orders
+        - Refunds
+        - Tracking numbers
+        - Webhooks
+        - Job queue
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you expected, what you got. Include the job type and the last error from WooCommerce > Jobs.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: The Activity log line and the Odoo server traceback if there is one, with secrets removed.
+      render: text
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I removed consumer keys, application passwords and webhook secrets from the text
+          required: true
+        - label: I am on a supported version (Odoo 19.0 or 20.0)
+          required: true

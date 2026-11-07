@@ -13,7 +13,20 @@ the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 First public version of the module. Free software under AGPL-3.0 or later, with
 no paid edition and no feature held back for one.
 
+### Fixed
+
+* A fresh installation no longer shows an access error to the administrator:
+  the Manager group is implied by the Settings group, so the WooCommerce menu is
+  available right after install.
+
 ### Added
+
+* Real screenshots of the Stores list, the store form, the job queue, the
+  activity log and an imported sale order.
+* Continuous integration: byte-compile, XML validation and the unit test suite on
+  Odoo 19.0 and 20.0 for every push and pull request.
+* CONTRIBUTING.md, RELEASING.md, TRANSLATING.md, SECURITY.md and issue templates.
+* dev/i18n.conf used by the translation export command.
 
 * **Connection to WooCommerce stores.** A store record with URL, consumer key and
   secret, optional WordPress media credentials, warehouse, pricelist, shipping and

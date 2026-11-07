@@ -15,3 +15,6 @@ dev/.env
 dev/volumes/
 dev/data/
 .DS_Store
+
+# Release packages
+dist/

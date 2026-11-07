@@ -1,0 +1,72 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, '19.0', '20.0']
+  pull_request:
+    branches: [main, '19.0', '20.0']
+
+jobs:
+  static:
+    name: Byte-compile and validate XML
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Byte-compile the module
+        run: python -m compileall -q woocommerce_connector
+      - name: Validate every XML file
+        run: |
+          python - <<'PY'
+          import glob
+          import xml.etree.ElementTree as ET
+          files = glob.glob('woocommerce_connector/**/*.xml', recursive=True)
+          for path in files:
+              ET.parse(path)
+          print(f'{len(files)} XML files are well formed')
+          PY
+      - name: Check that the manifest is importable
+        run: |
+          python - <<'PY'
+          import ast
+          tree = ast.parse(open('woocommerce_connector/__manifest__.py', encoding='utf-8').read())
+          manifest = ast.literal_eval(tree.body[0].value)
+          assert manifest['license'] == 'AGPL-3'
+          assert manifest['installable'] is True
+          print('manifest ok:', manifest['version'], manifest['depends'])
+          PY
+
+  odoo:
+    name: Odoo ${{ matrix.odoo }} unit tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        odoo: ['19.0', '20.0']
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: odoo
+          POSTGRES_PASSWORD: odoo
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd "pg_isready -U odoo"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install and test the module
+        run: |
+          docker run --rm --network host \
+            -e HOST=127.0.0.1 -e USER=odoo -e PASSWORD=odoo \
+            -v "$PWD/woocommerce_connector:/mnt/extra-addons/woocommerce_connector:ro" \
+            odoo:${{ matrix.odoo }} \
+            odoo -d ci -i woocommerce_connector --stop-after-init \
+            --test-enable --test-tags /woocommerce_connector \
+            --addons-path=/mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons
