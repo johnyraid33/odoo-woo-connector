@@ -19,10 +19,14 @@ to start with the Odoo series.
    branches (they differ only in the version line).
 2. Update `CHANGELOG.md` and move the changes from `[Unreleased]`.
 3. Run the full acceptance suite against the dev stack (see `dev/README.md`).
-4. Build the package:
+4. Build the package. Only the module folder belongs in it, and the module
+   folder itself must be the root entry of the archive:
 
    ```bash
-   git archive --format=zip --prefix=woocommerce_connector/ -o dist/woocommerce_connector-20.0.zip 20.0
+   rm -rf /tmp/rel && mkdir -p /tmp/rel/woocommerce_connector
+   git archive --format=tar 20.0:woocommerce_connector | tar -x -C /tmp/rel/woocommerce_connector
+   ( cd /tmp/rel && zip -qr woocommerce_connector-20.0.1.0.0.zip woocommerce_connector )
+   unzip -l woocommerce_connector-20.0.1.0.0.zip | head
    ```
 
 5. Create the release and attach the package:
