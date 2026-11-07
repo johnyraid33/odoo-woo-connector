@@ -58,6 +58,7 @@ and Russian translations next to it.
 | woocommerce_connector/doc/ | user guides (English, Ukrainian, Russian) |
 | dev/ | reproducible WordPress + WooCommerce + Odoo stack for verification |
 | ARCHITECTURE.md | design rules and the failures they prevent |
+| TESTING.md | what has been verified, how, and the honest list of gaps |
 | CONTRIBUTING.md | how to set up, test and send a change |
 | RELEASING.md | how a version branch and a release are made |
 | TRANSLATING.md | how to export the template and add a language |

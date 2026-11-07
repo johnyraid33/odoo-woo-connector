@@ -122,7 +122,7 @@ def _order_lines(env, store, data, tax_map):
             'product_id': shipping_product.id,
             'name': line.get('method_title') or 'Shipping',
             'product_uom_qty': 1.0,
-            'price_unit': _net_price(env, store, _to_float(line.get('total')), shipping_tax_ids),
+            'price_unit': _to_float(line.get('total')),
             'tax_ids': [Command.set(shipping_tax_ids)],
         }
         commands.append(Command.create(values))
@@ -132,7 +132,7 @@ def _order_lines(env, store, data, tax_map):
             'product_id': _fee_product(env, store).id,
             'name': line.get('name') or 'Fee',
             'product_uom_qty': 1.0,
-            'price_unit': _net_price(env, store, _to_float(line.get('total')), fee_tax_ids),
+            'price_unit': _to_float(line.get('total')),
             'tax_ids': [Command.set(fee_tax_ids)],
         }
         commands.append(Command.create(values))
@@ -153,26 +153,26 @@ def _line_values(env, store, order, line, tax_map):
         'product_id': product.id,
         'name': line.get('name') or product.display_name,
         'product_uom_qty': quantity,
-        'price_unit': _net_price(env, store, price_unit, tax_ids),
+        # WooCommerce reports order line subtotals *excluding* tax on every
+        # store, including stores whose product prices are entered with tax.
+        # The flag only matters when writing a price back (catalog export).
+        'price_unit': price_unit,
         'discount': discount,
         'tax_ids': [Command.set(tax_ids)],
         'customer_lead': 0,
     }
 
 
-def _net_price(env, store, gross_price, tax_ids):
-    """Convert a price to the convention Odoo uses for the sale order.
+def net_price_to_store(env, store, price, taxes):
+    """Convert an Odoo net price to the price convention of the store.
 
-    When the store enters prices with tax, the WooCommerce line subtotal is
-    gross; Odoo stores the net unit price and adds the tax itself.
+    Only used when writing a price to WooCommerce: on a store with prices
+    entered with tax the gross amount has to be sent.
     """
-    if not gross_price or not store.prices_include_tax or not tax_ids:
-        return gross_price
-    taxes = env['account.tax'].sudo().browse(tax_ids)
+    if not price or not store.prices_include_tax or not taxes:
+        return price
     rate = sum(taxes.mapped('amount')) / 100.0
-    if rate <= -1:
-        return gross_price
-    return gross_price / (1.0 + rate)
+    return price * (1.0 + rate) if rate > -1 else price
 
 
 def _tax_ids(line, tax_map):
@@ -410,12 +410,19 @@ def import_refund(env, store, order_data, refund_ref, client):
 
 
 def _refund_lines(env, store, invoice, refund):
-    """Build the credit note lines of a WooCommerce refund."""
+    """Build the credit note lines of a WooCommerce refund.
+
+    The sum of the credit note lines is always made equal to the amount the
+    customer got back: a refund created through the API can carry line items
+    with a zero total, and a refund can include shipping or fees that are not
+    attached to any line item.
+    """
     commands = []
+    lines_total = 0.0
     for item in refund.get('line_items') or []:
         quantity = abs(_to_float(item.get('quantity')))
         total = abs(_to_float(item.get('total')))
-        if not quantity:
+        if not quantity or not total:
             continue
         product = _resolve_refund_product(env, store, item, invoice)
         if not product:
@@ -428,6 +435,7 @@ def _refund_lines(env, store, invoice, refund):
             tax_ids = invoice_line.tax_ids
         else:
             tax_ids = product.taxes_id.filtered(lambda t: t.company_id == invoice.company_id)
+        lines_total += total
         commands.append(Command.create({
             'product_id': product.id,
             'name': item.get('name') or product.display_name,
@@ -435,19 +443,18 @@ def _refund_lines(env, store, invoice, refund):
             'price_unit': price,
             'tax_ids': [Command.set(tax_ids.ids)],
         }))
-    if not commands:
-        # An amount-only refund (a manual refund in the WooCommerce admin) has no
-        # line items. Credit exactly the amount the customer got back; the tax
-        # part of such a refund is not reversed, which is logged for the accountant.
-        amount = abs(_to_float(refund.get('amount')))
-        if amount:
-            commands.append(Command.create({
-                'name': 'WooCommerce refund %s: %s' % (
-                    refund.get('id'), refund.get('reason') or 'no reason given'),
-                'quantity': 1.0,
-                'price_unit': amount,
-                'tax_ids': [Command.set([])],
-            }))
+    amount = abs(_to_float(refund.get('amount')))
+    difference = round(amount - lines_total, 2)
+    if amount and abs(difference) > 0.01:
+        # Shipping, fees or an amount-only refund: credit the rest on one line so
+        # the credit note total equals the amount actually refunded.
+        commands.append(Command.create({
+            'name': 'WooCommerce refund %s: %s' % (
+                refund.get('id'), refund.get('reason') or 'no reason given'),
+            'quantity': 1.0,
+            'price_unit': difference,
+            'tax_ids': [Command.set([])],
+        }))
     return commands
 
 

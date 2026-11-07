@@ -8,6 +8,33 @@ the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.1] — unreleased
+
+Verification round against a tax-inclusive store, a variable product, a 111-product
+catalogue, every webhook topic and the uninstall path. Five real defects were found
+and fixed.
+
+### Fixed
+
+* **Tax-inclusive stores were understated by the tax rate.** WooCommerce reports order
+  line subtotals excluding tax on every store; the module divided them by the rate
+  again, so a 103.75 order would have been imported as 87.18. The conversion is gone
+  for the import direction and now happens only when an Odoo price is written to a
+  store that enters prices with tax.
+* **Catalog export destroyed variations.** Updating a product sent `type: simple`,
+  which converted a variable WooCommerce product to a simple one and deleted its
+  variations. The type is no longer sent on update, and a product with more than one
+  variant is skipped on creation with a logged warning (variant export is not
+  implemented in 1.0).
+* **Imported variable products could not hold stock.** A variable product usually has
+  `manage_stock` off at the parent level, so the Odoo template was created as a
+  non-storable product and the stock pull for its variations did nothing.
+* **A refund with zero line totals produced a zero credit note.** The credit note
+  total is now always made equal to the amount actually refunded, with the difference
+  (shipping, fees, amount-only refunds) on one adjustment line.
+* **A failed connection test left no trace in the Activity log**, only the error field
+  on the store.
+
 ## [1.0.0] — unreleased
 
 First public version of the module. Free software under AGPL-3.0 or later, with

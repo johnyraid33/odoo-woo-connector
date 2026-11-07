@@ -45,12 +45,16 @@ Webhooks are therefore a latency optimisation, never the source of truth:
 
 The single most expensive class of bug in commerce connectors.
 
-1. The store setting prices entered with tax is read from WooCommerce, never assumed.
-2. When the store enters prices with tax, the gross amount WooCommerce charged is
-   converted to net with the matched rates; Odoo then computes the tax with its own
-   engine, so group, compound and fixed taxes behave as in any other sale order.
-3. Tax-inclusive shipping and fee lines are converted from the gross amount WooCommerce
-   actually charged, not from a recomputed net.
+1. WooCommerce reports order line subtotals **excluding** tax on every store,
+   including stores whose product prices are entered with tax. The imported line
+   takes that net figure as it is and lets Odoo compute the tax again; converting
+   it a second time would understate every tax-inclusive store by the tax rate.
+2. The "prices entered with tax" setting is read from the store for the opposite
+   direction only: a net Odoo price is converted to a gross price before it is
+   written to a store that enters prices with tax.
+3. Because WooCommerce stores tax-inclusive prices and Odoo rounds the unit price,
+   a tax-inclusive order can differ by one cent; the tolerance below decides whether
+   that is logged.
 4. After importing an order the sum of Odoo lines is compared with the WooCommerce total;
    a deviation above the configured tolerance is logged as an activity instead of being
    silently absorbed.

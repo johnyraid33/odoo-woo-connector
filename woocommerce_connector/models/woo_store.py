@@ -233,6 +233,7 @@ class WooStore(models.Model):
                 'last_error': str(exc),
                 'last_test_date': fields.Datetime.now(),
             })
+            self.env['woo.log'].sudo().log_error(self, exc)
             raise UserError('Connection to WooCommerce failed: %s' % exc) from exc
         Currency = self.env['res.currency'].with_context(active_test=False)
         currency = Currency.search([

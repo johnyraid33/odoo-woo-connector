@@ -104,7 +104,9 @@ def _template_values(env, store, data):
         'barcode': (data.get('barcode') or '').strip() or False,
         'list_price': _to_float(data.get('price')),
         'type': 'consu',
-        'is_storable': bool(data.get('manage_stock')),
+        # A variable product usually keeps manage_stock off at the parent level:
+        # its variations carry the stock, so the template must still be storable.
+        'is_storable': bool(data.get('manage_stock')) or data.get('type') == 'variable',
         'categ_id': _product_category(env, store).id or False,
         'company_id': store.company_id.id,
         'description_sale': _description(data),
@@ -247,7 +249,21 @@ def export_products(env, store, payload, job=None):
     count = 0
     for template in templates:
         mapping = Mapping._get_by_record(store, 'product.template', template.id)
+        if not mapping and len(template.product_variant_ids) > 1:
+            # Exporting variants is not implemented in 1.0. Creating a simple
+            # product here would silently lose the variants, so it is skipped.
+            env['woo.log'].sudo().log(
+                store, 'warning',
+                'Product %s has %s variants; variant export is not supported yet.'
+                % (template.display_name, len(template.product_variant_ids)),
+                job=job, res_model='product.template', res_id=template.id,
+            )
+            continue
         values = _export_values(env, store, template)
+        if mapping:
+            # The type is owned by WooCommerce: sending "simple" for an existing
+            # variable product used to delete its variations in the store.
+            values.pop('type', None)
         try:
             if not mapping and template.default_code:
                 # The product may already exist in WooCommerce with this SKU;
@@ -286,10 +302,14 @@ def export_products(env, store, payload, job=None):
 
 
 def _export_values(env, store, template):
+    from .orders import net_price_to_store
+
+    taxes = template.taxes_id.filtered(lambda t: t.company_id == store.company_id)
+    price = net_price_to_store(env, store, template.list_price or 0.0, taxes)
     values = {
         'name': template.name,
         'sku': template.default_code or '',
-        'regular_price': '%.2f' % (template.list_price or 0.0),
+        'regular_price': '%.2f' % price,
         'description': template.description_sale or '',
         'status': 'publish' if template.sale_ok else 'draft',
         'type': 'simple',
