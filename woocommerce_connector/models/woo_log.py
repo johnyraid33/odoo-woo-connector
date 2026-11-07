@@ -52,11 +52,15 @@ class WooLog(models.Model):
             return self.browse()
         return self.sudo().create(values)
 
-    def log_error(self, store, exc, job=None, **kwargs):
-        """Log a WooError or any other exception, keeping the HTTP details."""
+    def log_error(self, store, exc, job=None, payload=None, **kwargs):
+        """Log a WooError or any other exception, keeping the HTTP details.
+
+        payload is the caller's context (for example "product 13"); when the
+        exception carries the API answer, that answer is logged instead.
+        """
         status = getattr(exc, 'status', None)
         code = getattr(exc, 'code', None)
-        payload = getattr(exc, 'payload', None)
+        payload = getattr(exc, 'payload', None) or payload
         return self.log(
             store, 'error', str(exc), job=job, http_status=status,
             woo_code=code, payload=payload, **kwargs,

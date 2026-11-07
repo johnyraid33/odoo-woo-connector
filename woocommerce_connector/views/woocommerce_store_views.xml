@@ -42,6 +42,7 @@
                             <field name="base_url" placeholder="https://shop.example.com"/>
                             <field name="consumer_key" password="True"/>
                             <field name="consumer_secret" password="True"/>
+                            <field name="verify_ssl"/>
                             <field name="api_version" readonly="1"/>
                             <field name="last_test_date" readonly="1"/>
                             <field name="currency_id" readonly="1"/>

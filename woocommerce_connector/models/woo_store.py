@@ -48,6 +48,12 @@ class WooStore(models.Model):
     )
     consumer_key = fields.Char(groups='woocommerce_connector.group_woocommerce_manager')
     consumer_secret = fields.Char(groups='woocommerce_connector.group_woocommerce_manager')
+    verify_ssl = fields.Boolean(
+        string='Verify the TLS certificate', default=True,
+        help='Uncheck only for a local store with a self-signed certificate. '
+             'With verification disabled the consumer key travels over an '
+             'unverified connection.',
+    )
     api_version = fields.Char(string='WooCommerce version', readonly=True)
     connection_state = fields.Selection(
         [('draft', 'Not tested'), ('ok', 'Connected'), ('error', 'Error')],
@@ -125,7 +131,8 @@ class WooStore(models.Model):
     # ---------------------------------------------------------------- compute
     @api.depends('base_url')
     def _compute_webhook_url(self):
-        base = self.env['ir.config_parameter'].sudo().get_param('web.base.url') or ''
+        from ..compat import param_get_str
+        base = param_get_str(self.env['ir.config_parameter'].sudo(), 'web.base.url', '')
         for store in self:
             store.webhook_url = base.rstrip('/') + '/woocommerce/webhook/%s' % store.id
 
@@ -171,7 +178,10 @@ class WooStore(models.Model):
         self.ensure_one()
         if not self.consumer_key or not self.consumer_secret:
             raise UserError('Fill in the consumer key and secret of the store first.')
-        return WooClient(self.base_url, self.consumer_key, self.consumer_secret)
+        return WooClient(
+            self.base_url, self.consumer_key, self.consumer_secret,
+            verify=self.verify_ssl,
+        )
 
     # ------------------------------------------------------------------ queue
     def _enqueue(self, job_type, payload=None, res_model=None, res_id=None, priority=10):
@@ -194,9 +204,13 @@ class WooStore(models.Model):
                 'last_test_date': fields.Datetime.now(),
             })
             raise UserError('Connection to WooCommerce failed: %s' % exc) from exc
-        currency = self.env['res.currency'].search([
+        Currency = self.env['res.currency'].with_context(active_test=False)
+        currency = Currency.search([
             ('name', '=', (info.get('currency') or '').upper()),
         ], limit=1)
+        if currency and not currency.active:
+            # A store may trade in a currency that is not active yet in Odoo.
+            currency.active = True
         settings = {}
         try:
             settings = self._get_client().get('/settings/tax/woocommerce_prices_include_tax') or {}

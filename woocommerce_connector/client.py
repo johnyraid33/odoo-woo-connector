@@ -132,7 +132,7 @@ class WooClient:
     """Thin, dependency free client for the WooCommerce REST API v3."""
 
     def __init__(self, base_url, consumer_key, consumer_secret, timeout=HTTP_TIMEOUT,
-                 attempts=HTTP_ATTEMPTS, session=None, user_agent=None):
+                 attempts=HTTP_ATTEMPTS, session=None, user_agent=None, verify=True):
         self.base_url = normalize_base_url(base_url)
         if not consumer_key or not consumer_secret:
             raise ValueError('The consumer key and secret are required.')
@@ -142,6 +142,10 @@ class WooClient:
         self.attempts = max(1, int(attempts))
         self.session = session or requests.Session()
         self.user_agent = user_agent or 'woocommerce-connector/1.0 (+https://github.com/)'
+        # Verification is on by default; a store whose certificate cannot be
+        # validated (a local development stack, a self-signed certificate) has to
+        # opt out explicitly in its configuration.
+        self.verify = verify
         self.api_root = self.base_url + API_ROOT
         self.last_response = None
 
@@ -210,6 +214,7 @@ class WooClient:
                     headers=self._headers(),
                     auth=(self.consumer_key, self.consumer_secret),
                     timeout=timeout or self.timeout,
+                    verify=self.verify,
                 )
             except requests.RequestException as exc:
                 last_error = WooError(str(exc), retryable=True)

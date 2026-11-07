@@ -121,7 +121,7 @@ def _order_lines(env, store, data, tax_map):
             'name': line.get('method_title') or 'Shipping',
             'product_uom_qty': 1.0,
             'price_unit': _to_float(line.get('total')),
-            'tax_id': [Command.set(_tax_ids(line, tax_map))],
+            'tax_ids': [Command.set(_tax_ids(line, tax_map))],
         }
         commands.append(Command.create(values))
     for line in data.get('fee_lines') or []:
@@ -130,7 +130,7 @@ def _order_lines(env, store, data, tax_map):
             'name': line.get('name') or 'Fee',
             'product_uom_qty': 1.0,
             'price_unit': _to_float(line.get('total')),
-            'tax_id': [Command.set(_tax_ids(line, tax_map))],
+            'tax_ids': [Command.set(_tax_ids(line, tax_map))],
         }
         commands.append(Command.create(values))
     return commands
@@ -151,7 +151,7 @@ def _line_values(env, store, order, line, tax_map):
         'product_uom_qty': quantity,
         'price_unit': price_unit,
         'discount': discount,
-        'tax_id': [Command.set(_tax_ids(line, tax_map))],
+        'tax_ids': [Command.set(_tax_ids(line, tax_map))],
         'customer_lead': 0,
     }
 

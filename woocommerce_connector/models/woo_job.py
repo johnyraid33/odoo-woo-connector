@@ -88,8 +88,9 @@ class WooJob(models.Model):
         the same job, and a crashed worker cannot keep a job forever thanks to
         the lease.
         """
+        from ..compat import param_get_int
         ICP = self.env['ir.config_parameter'].sudo()
-        limit = limit or int(ICP.get_param('woocommerce_connector.queue_batch', 20) or 20)
+        limit = limit or param_get_int(ICP, 'woocommerce_connector.queue_batch', 20)
         self._reclaim_stale()
         now = fields.Datetime.now()
         self.env.cr.execute("""
@@ -112,10 +113,11 @@ class WooJob(models.Model):
 
     @api.model
     def _reclaim_stale(self):
+        from ..compat import param_get_int
         ICP = self.env['ir.config_parameter'].sudo()
-        lease = int(ICP.get_param(
-            'woocommerce_connector.job_lease_minutes', DEFAULT_JOB_LEASE_MINUTES,
-        ) or DEFAULT_JOB_LEASE_MINUTES)
+        lease = param_get_int(
+            ICP, 'woocommerce_connector.job_lease_minutes', DEFAULT_JOB_LEASE_MINUTES,
+        )
         deadline = fields.Datetime.now() - timedelta(minutes=lease)
         stale = self.search([
             ('state', '=', 'running'),

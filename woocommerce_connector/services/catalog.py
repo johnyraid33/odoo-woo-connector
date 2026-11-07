@@ -95,9 +95,7 @@ def _template_values(env, store, data):
         'list_price': _to_float(data.get('price')),
         'type': 'consu',
         'is_storable': bool(data.get('manage_stock')),
-        'categ_id': store.default_product_category_id.id or env.ref(
-            'product.product_category_all', raise_if_not_found=False
-        ).id,
+        'categ_id': _product_category(env, store).id or False,
         'company_id': store.company_id.id,
         'description_sale': _description(data),
         'weight': _to_float(data.get('weight')),
@@ -106,6 +104,13 @@ def _template_values(env, store, data):
     if attribute_lines:
         values['attribute_line_ids'] = attribute_lines
     return values
+
+
+def _product_category(env, store):
+    """Return the category for imported products."""
+    if store.default_product_category_id:
+        return store.default_product_category_id
+    return env['product.category'].search([], limit=1)
 
 
 def _update_template(env, store, template, data):
