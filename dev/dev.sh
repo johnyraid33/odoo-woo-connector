@@ -136,15 +136,11 @@ cmd_status() {
   echo
   echo "=== woocommerce data ==="
   wp_cli eval '
-    $products = wc_get_products( array( "limit" => -1, "return" => "ids" ) );
-    $orders   = wc_get_orders( array( "limit" => -1, "return" => "ids" ) );
-    $refunds  = 0;
-    foreach ( $orders as $oid ) {
-      $order = wc_get_order( $oid );
-      if ( $order ) { $refunds += count( $order->get_refunds() ); }
-    }
-    $customers = count( get_users( array( "role" => "customer" ) ) );
-    WP_CLI::log( sprintf( "products=%d customers=%d orders=%d refunds=%d coupon=%s", count( $products ), $customers, count( $orders ), $refunds, get_option( "woocommerce_currency" ) ) );
+    $products   = wc_get_products( array( "limit" => -1, "return" => "ids" ) );
+    $orders     = wc_get_orders( array( "limit" => -1, "return" => "ids", "type" => "shop_order" ) );
+    $refunds    = wc_get_orders( array( "limit" => -1, "return" => "ids", "type" => "shop_order_refund" ) );
+    $customers  = count( get_users( array( "role" => "customer" ) ) );
+    WP_CLI::log( sprintf( "products=%d customers=%d orders=%d refunds=%d currency=%s", count( $products ), $customers, count( $orders ), count( $refunds ), get_option( "woocommerce_currency" ) ) );
   ' 2>/dev/null || info "WooCommerce data: n/a (not seeded yet)"
   echo
   echo "=== odoo databases ==="
@@ -183,7 +179,7 @@ cmd_odoo_init() {
   log "Creating Odoo database 'odoo' with base modules (module is NOT installed)"
   compose exec -T odoo odoo -c /etc/odoo/odoo.conf \
     --db_host=odoo-db --db_port=5432 --db_user=odoo --db_password=odoo \
-    -d odoo -i base --without-demo=all --stop-after-init --no-http --log-level=warn
+    -d odoo -i base --without-demo --stop-after-init --no-http --log-level=warn
   info "Odoo database ready: $ODOO_URL/web/login?db=odoo"
 }
 

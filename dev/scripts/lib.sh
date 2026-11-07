@@ -7,11 +7,43 @@ DEV_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Load local overrides (ports, passwords). Docker Compose reads dev/.env on its
 # own; the scripts need the same values for curl checks and printed URLs.
+#
+# Docker Compose gives the shell environment precedence over .env, so mirror
+# that here: remember which variables were already set, source .env, then put
+# the original values back. This makes
+#   WP_PORT=18091 ./dev.sh status
+# behave exactly like the compose command it wraps.
 if [[ -f "$DEV_DIR/.env" ]]; then
+  _dev_env_keys=()
+  while IFS= read -r _line || [[ -n "$_line" ]]; do
+    case "$_line" in ''|\#*) continue ;; esac
+    _key="${_line%%=*}"
+    _key="$(printf '%s' "$_key" | tr -d '[:space:]')"
+    [[ -n "$_key" ]] && _dev_env_keys+=("$_key")
+  done < "$DEV_DIR/.env"
+
+  _dev_env_saved=()
+  for _key in "${_dev_env_keys[@]}"; do
+    eval "_value=\"\${$_key-__UNSET__}\""
+    _dev_env_saved+=("$_value")
+  done
+
   set -a
   # shellcheck disable=SC1091
   source "$DEV_DIR/.env"
   set +a
+
+  _dev_env_index=0
+  for _key in "${_dev_env_keys[@]}"; do
+    _value="${_dev_env_saved[$_dev_env_index]}"
+    # Only restore variables the caller had set; values coming from .env are
+    # kept as-is.
+    if [[ "$_value" != "__UNSET__" ]]; then
+      export "$_key=$_value"
+    fi
+    _dev_env_index=$((_dev_env_index + 1))
+  done
+  unset _dev_env_keys _dev_env_saved _dev_env_index _key _value _line
 fi
 
 ODOO_PORT="${ODOO_PORT:-8090}"
@@ -31,7 +63,7 @@ WP_URL="http://localhost:${WP_PORT}"
 # every host-side curl for the API needs -k.
 WOO_API_URL="https://localhost:${WP_HTTPS_PORT}"
 ODOO_URL="http://localhost:${ODOO_PORT}"
-CREDENTIALS_FILE="$DEV_DIR/.woo_credentials.json"
+CREDENTIALS_FILE="${CREDENTIALS_FILE:-$DEV_DIR/.woo_credentials.json}"
 
 compose() { docker compose --project-directory "$DEV_DIR" -f "$DEV_DIR/docker-compose.yml" "$@"; }
 
@@ -47,8 +79,12 @@ wp_cli() {
 }
 
 http_code() {
-  # 000 when the host is not reachable at all.
-  curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$1" 2>/dev/null || echo 000
+  # 000 when the host is not reachable at all. -k is required for the dev
+  # stack's self-signed HTTPS endpoint.
+  local code
+  code="$(curl -sk -o /dev/null -w '%{http_code}' --max-time 5 "$1" 2>/dev/null)" || true
+  [[ -n "$code" ]] || code="000"
+  printf '%s' "$code"
 }
 
 # Wait until URL answers with HTTP < 500. Before seeding WordPress answers 302

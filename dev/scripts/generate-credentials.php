@@ -45,7 +45,10 @@ $inserted = $wpdb->insert(
 		'user_id'         => (int) $user->ID,
 		'description'     => $description,
 		'permissions'     => 'read_write',
-		'consumer_key'    => $consumer_key,
+		// WooCommerce stores the consumer key hashed (wc_api_hash) and looks it
+		// up the same way; the secret is stored as-is and compared with
+		// hash_equals(). This mirrors WC_Auth::create_keys().
+		'consumer_key'    => wc_api_hash( $consumer_key ),
 		'consumer_secret' => $consumer_secret,
 		'truncated_key'   => substr( $consumer_key, -7 ),
 	),

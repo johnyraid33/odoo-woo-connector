@@ -310,7 +310,8 @@ def import_refund(env, store, order_data, refund_ref, client):
     if not mapping or not mapping.order_id:
         raise UserError('The refunded order has not been imported yet.')
     order = mapping.order_id
-    refund = client.get('/refunds/%s' % refund_ref.get('id'))
+    # WooCommerce exposes refunds under the order, not as a top level resource.
+    refund = client.get('/orders/%s/refunds/%s' % (order_data.get('id'), refund_ref.get('id')))
     if not order.invoice_ids:
         env['woo.log'].sudo().log(
             store, 'warning',
@@ -322,17 +323,106 @@ def import_refund(env, store, order_data, refund_ref, client):
     invoice = order.invoice_ids.filtered(lambda m: m.state == 'posted')[:1]
     if not invoice:
         return env['account.move']
-    reversal = env['account.move.reversal'].sudo().with_context(
-        active_model='account.move', active_ids=invoice.ids,
-    ).create({
-        'reason': refund.get('reason') or 'WooCommerce refund %s' % refund.get('id'),
+
+    reference = 'WooCommerce refund %s' % refund.get('id')
+    existing = env['account.move'].sudo().search([
+        ('move_type', '=', 'out_refund'), ('ref', '=', reference),
+    ], limit=1)
+    if existing:
+        return existing
+
+    # Reversing the whole invoice would credit more than the customer got back:
+    # a partial refund has to become a partial credit note.
+    lines = _refund_lines(env, store, invoice, refund)
+    if not lines:
+        env['woo.log'].sudo().log(
+            store, 'warning',
+            'Refund %s of order %s has neither line items nor an amount.'
+            % (refund.get('id'), order.name),
+            res_model='sale.order', res_id=order.id,
+        )
+        return env['account.move']
+    credit = env['account.move'].sudo().create({
+        'move_type': 'out_refund',
+        'partner_id': invoice.partner_id.id,
+        'currency_id': invoice.currency_id.id,
         'journal_id': invoice.journal_id.id,
+        'invoice_date': fields.Date.context_today(env.user),
+        'ref': reference,
+        'invoice_origin': order.name,
+        'invoice_line_ids': lines,
     })
-    action = reversal.refund_moves()
-    credit = env['account.move'].sudo().browse(action.get('res_id'))
-    if credit:
-        credit.write({'ref': 'WooCommerce refund %s' % refund.get('id')})
+    credit.action_post()
+    env['woo.log'].sudo().log(
+        store, 'info',
+        'Refund %s of order %s imported as %s (%s).' % (
+            refund.get('id'), order.name, credit.name, credit.amount_total),
+        res_model='account.move', res_id=credit.id,
+    )
     return credit
+
+
+def _refund_lines(env, store, invoice, refund):
+    """Build the credit note lines of a WooCommerce refund."""
+    commands = []
+    for item in refund.get('line_items') or []:
+        quantity = abs(_to_float(item.get('quantity')))
+        total = abs(_to_float(item.get('total')))
+        if not quantity:
+            continue
+        product = _resolve_refund_product(env, store, item, invoice)
+        if not product:
+            continue
+        price = total / quantity if quantity else total
+        invoice_line = invoice.invoice_line_ids.filtered(
+            lambda line: line.product_id == product
+        )[:1]
+        if invoice_line:
+            tax_ids = invoice_line.tax_ids
+        else:
+            tax_ids = product.taxes_id.filtered(lambda t: t.company_id == invoice.company_id)
+        commands.append(Command.create({
+            'product_id': product.id,
+            'name': item.get('name') or product.display_name,
+            'quantity': -quantity,
+            'price_unit': price,
+            'tax_ids': [Command.set(tax_ids.ids)],
+        }))
+    if not commands:
+        # An amount-only refund (a manual refund in the WooCommerce admin) has no
+        # line items. Credit exactly the amount the customer got back; the tax
+        # part of such a refund is not reversed, which is logged for the accountant.
+        amount = abs(_to_float(refund.get('amount')))
+        if amount:
+            commands.append(Command.create({
+                'name': 'WooCommerce refund %s: %s' % (
+                    refund.get('id'), refund.get('reason') or 'no reason given'),
+                'quantity': 1.0,
+                'price_unit': amount,
+                'tax_ids': [Command.set([])],
+            }))
+    return commands
+
+
+def _resolve_refund_product(env, store, item, invoice):
+    woo_product_id = item.get('product_id') or item.get('variation_id')
+    if woo_product_id:
+        mapping = env['woo.product.mapping'].sudo()._get_mapping(store, woo_product_id)
+        record = mapping._record() if mapping else env['product.product'].browse()
+        if record:
+            return record if record._name == 'product.product' else record.product_variant_id
+    sku = (item.get('sku') or '').strip()
+    if sku:
+        product = env['product.product'].sudo().search([('default_code', '=', sku)], limit=1)
+        if product:
+            return product
+    # Last resort: the invoice line with the same name.
+    name = (item.get('name') or '').strip()
+    if name:
+        line = invoice.invoice_line_ids.filtered(lambda l: l.name == name)[:1]
+        if line:
+            return line.product_id
+    return env['product.product']
 
 
 # ---------------------------------------------------------------- webhooks
