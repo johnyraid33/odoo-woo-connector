@@ -101,8 +101,10 @@ cd dev/multi && ./multi.sh up && ./multi.sh seed && ./multi.sh verify
 | Scenario | Result |
 | --- | --- |
 | Signature verified over the raw body, bad signature answers 401 | pass |
+| Two deliveries of the same webhook (same `X-WC-Webhook-ID`, new `X-WC-Webhook-Delivery-ID`) both processed | pass since 1.0.3, real WooCommerce delivery |
+| Unsigned `webhook_id=<id>` save check answered 200 | pass since 1.0.3 |
 | Duplicate delivery id ignored, 200 answered immediately | pass |
-| order.updated, order.created, customer.created, product.updated, product.deleted, refund.created | pass for all six |
+| order.updated, order.created, customer.created, product.updated, product.deleted | pass (1.0.3: `refund.created` is not a WooCommerce topic; refunds arrive through `order.updated` and the poll) |
 | The same order delivered again under a **new** delivery id does not duplicate the sale order | pass |
 | Webhook for a store with another key answers 401 | pass (per-store secret) |
 
@@ -154,20 +156,21 @@ cd dev/multi && ./multi.sh up && ./multi.sh seed && ./multi.sh verify
 
 ## Reproducing the acceptance suite
 
-The acceptance scripts configure credentials, so they are kept out of the
-repository. They follow the pattern below.
+The suite is in `dev/acceptance/`. It creates its own products, variations,
+customer, coupon, orders and refunds in the dev store (all prefixed with a run
+tag), drives every flow through the real REST API and prints one PASS/FAIL line
+per check. Credentials are read from `dev/.woo_credentials.json`, never stored in
+the script.
 
 ```bash
-cd dev
-CK=$(python3 -c "import json;print(json.load(open('.woo_credentials.json'))['consumer_key'])")
-CS=$(python3 -c "import json;print(json.load(open('.woo_credentials.json'))['consumer_secret'])")
-
-docker compose run --rm -T odoo odoo -d acceptance -i woocommerce_connector --stop-after-init --no-http
-docker compose run --rm -T \
-  -e WOO_URL=https://wordpress -e WOO_CK="$CK" -e WOO_CS="$CS" -e WOO_APP_PASS=... \
-  odoo odoo shell -d acceptance --no-http < acceptance.py
+cd dev && ./dev.sh up && ./dev.sh seed
+./acceptance/run.sh 20
+./acceptance/run.sh 19
 ```
 
-`acceptance.py` configures the store, imports the catalogue and the orders,
-checks every total against the store, invoices an order, imports the refund,
-validates a delivery, cancels an order and prints a PASS/FAIL line per check.
+Run the two versions one after the other: both use the same store, and two Odoo
+databases that are both stock masters of one shop overwrite each other's stock.
+
+Release 1.0.3 result: **89 passed, 0 failed** on Odoo 20.0 and on Odoo 19.0, plus
+a real webhook delivery from WooCommerce 11.2.2 (two deliveries of the same
+webhook, and the unsigned save check) processed by Odoo 20.

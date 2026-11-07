@@ -31,9 +31,9 @@ consumer key and secret, and the store is reachable from the Odoo container as
 # unit tests of the transport layer, both versions
 docker run --rm --network odoo-woo-connector-dev_default \
   -e HOST=odoo-db -e USER=odoo -e PASSWORD=odoo \
-  -v "$PWD/../woocommerce_connector:/mnt/extra-addons/woocommerce_connector:ro" \
-  odoo:20.0 odoo -d test -i woocommerce_connector --stop-after-init \
-  --test-enable --test-tags /woocommerce_connector \
+  -v "$PWD/../rex_woocommerce_connector:/mnt/extra-addons/rex_woocommerce_connector:ro" \
+  odoo:20.0 odoo -d test -i rex_woocommerce_connector --stop-after-init \
+  --test-enable --test-tags /rex_woocommerce_connector \
   --addons-path=/mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons
 ```
 

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Two-way Sync for WooCommerce — free, AGPL-3</title>
+</head>
+<body>
+
+<section style="font-family: Helvetica, Arial, sans-serif; color: #1f2937; line-height: 1.55;">
+
+    <!-- Title and short pitch -->
+    <h1 style="font-size: 30px; margin: 0 0 8px 0;">Two-way Sync for WooCommerce</h1>
+    <p style="font-size: 18px; color: #4b5563; margin: 0 0 18px 0;">
+        Free, open source two-way sync between a WooCommerce store and Odoo:
+        catalog, stock, orders, refunds and tracking numbers. No paid licence,
+        no external Python packages, no mandatory OCA modules.
+    </p>
+    <p style="font-size: 16px; margin: 0 0 8px 0;">
+        <strong>Works with Odoo 19.0 and 20.0</strong> (Community and Enterprise)
+        and with WooCommerce 3.5 and newer — tested against WooCommerce 11.2.2.
+    </p>
+    <p style="font-size: 14px; color: #6b7280; margin: 0 0 28px 0;">
+        Licence: AGPL-3.0 or later · Author: POLISHCHUK &amp; SONS LTD ·
+        Support: best effort, no paid support.
+    </p>
+
+    <img src="img/01_stores.png" alt="WooCommerce stores in Odoo: connection state, WooCommerce version, queue counters"
+         style="max-width: 100%; border: 1px solid #e5e7eb; border-radius: 6px;"/>
+
+    <img src="img/02_store_form.png" alt="Store configuration: URL, credentials, warehouse, stock master and synchronisation switches"
+         style="max-width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; margin-top: 12px;"/>
+
+    <!-- Why this module exists -->
+    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Why another connector</h2>
+    <p style="font-size: 16px;">
+        Both systems are open source, and the bridge between them should be too.
+        This module was written with the failures of commercial connectors in
+        mind: duplicated products after a SKU change, orders imported twice by a
+        webhook and a cron, prices with tax imported as net, jobs stuck in
+        pending after a worker crash, silent failures with no trace.
+    </p>
+    <ul style="font-size: 16px;">
+        <li><strong>Identity by WooCommerce ID</strong>, SKU only to adopt an existing Odoo product on the first match.</li>
+        <li><strong>Idempotent import</strong>: a webhook and the poll can race without creating a duplicate.</li>
+        <li><strong>Queue with retries and a lease</strong> instead of silent failures, with an activity log for every error.</li>
+        <li><strong>Taxes matched by rate</strong>, never by a hard-coded name, plus a total comparison that warns instead of absorbing a difference.</li>
+    </ul>
+
+    <!-- Catalog -->
+    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Catalog: products, variations, attributes, images</h2>
+    <ul style="font-size: 16px;">
+        <li>Import of products, variations, attributes, prices, weight, descriptions and the main image.</li>
+        <li>Export of Odoo products into WooCommerce, with the image uploaded through the WordPress media library.</li>
+        <li>Matching by WooCommerce ID first; the SKU is used once, to adopt an existing product, and an export adopts a WooCommerce product with the same SKU instead of duplicating it.</li>
+        <li>Archiving, never deletion: a product removed in WooCommerce is archived in Odoo and keeps its sales history.</li>
+        <li>One broken product or image never stops the synchronisation: it is logged and the run continues.</li>
+    </ul>
+
+    <!-- Stock -->
+    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Stock in both directions</h2>
+    <ul style="font-size: 16px;">
+        <li>Three modes per store: Odoo is the master, WooCommerce is the master, or the stock sync is off.</li>
+        <li>Push writes the on-hand or the available quantity, through the product and variation endpoints, under a PostgreSQL advisory lock.</li>
+        <li>Pull creates traceable inventory adjustments in Odoo instead of writing quants directly.</li>
+        <li>The stock actions are installed disabled, so nothing is written to a live shop before you decide.</li>
+    </ul>
+
+    <!-- Orders and money -->
+    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Orders, customers and money</h2>
+    <ul style="font-size: 16px;">
+        <li>Orders imported by webhook and by a scheduled poll, with line items, line discounts, shipping lines, fee lines and taxes.</li>
+        <li>Taxes matched to Odoo sale taxes by rate, with a preference for a tax that has an account and then the company default.</li>
+        <li>Tax-inclusive stores supported: gross amounts are converted to net before the line is written, Odoo adds the tax back.</li>
+        <li>After the import the Odoo total is compared with the WooCommerce total; a difference above the tolerance is logged, never absorbed.</li>
+        <li>Customers matched by e-mail or created, guest checkout supported, addresses filled only when empty.</li>
+    </ul>
+
+    <!-- Refunds and fulfilment -->
+    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Refunds and fulfilment</h2>
+    <ul style="font-size: 16px;">
+        <li>Partial refunds imported as <strong>partial credit notes</strong>, not as a reversal of the whole invoice.</li>
+        <li>Amount-only refunds credit exactly what the customer received back: the tax part of such a refund is not reversed, and the credit note is logged for the accountant.</li>
+        <li>A refund is idempotent: the same WooCommerce refund can never produce two credit notes.</li>
+        <li>Validating an outgoing delivery sends the tracking number to WooCommerce as an order note, visible to the customer.</li>
+        <li>Cancelling a sale order in Odoo cancels the matching order in WooCommerce.</li>
+    </ul>
+
+    <img src="img/05_sale_order.png" alt="Sale order imported from WooCommerce with lines, taxes, delivery and the WooCommerce order reference"
+         style="max-width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; margin-top: 12px;"/>
+
+    <!-- Operations -->
+    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Operations: queue, log, webhooks</h2>
+    <ul style="font-size: 16px;">
+        <li><strong>Jobs</strong>: state, attempts, next run, duration, payload, last error; Retry, Cancel and Run now.</li>
+        <li>Lease and reclaim: a crashed worker cannot leave a job running forever; a failed job retries with exponential backoff and is dead-lettered after the configured attempts.</li>
+        <li><strong>Activity log</strong>: one line per batch, per warning and per failure, with the HTTP status and the WooCommerce error code.</li>
+        <li><strong>Webhook deliveries</strong>: every delivery, its topic, its deduplication key and its processing state.</li>
+        <li>HMAC-SHA256 signature check on the raw body, deduplication by delivery id, 200 answered immediately and the work done in the queue.</li>
+        <li>A health page at /woocommerce/status for a quick support check.</li>
+    </ul>
+
+    <img src="img/03_jobs.png" alt="Connector job queue: done and failed jobs with attempts, timestamps and a retry action"
+         style="max-width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; margin-top: 12px;"/>
+
+    <img src="img/04_activity_log.png" alt="Connector activity log with levels, HTTP status and WooCommerce error codes"
+         style="max-width: 100%; border: 1px solid #e5e7eb; border-radius: 6px; margin-top: 12px;"/>
+
+    <!-- Installation -->
+    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Installation</h2>
+    <ol style="font-size: 16px;">
+        <li>Copy the <code>rex_woocommerce_connector</code> directory into an Odoo addons path.</li>
+        <li>Restart Odoo, then <em>Apps &gt; Update Apps List &gt; Install Two-way Sync for WooCommerce</em>.</li>
+        <li>In WooCommerce: <em>Settings &gt; Advanced &gt; REST API &gt; Add key</em>, permissions <em>Read/Write</em>.</li>
+        <li>In Odoo: <em>WooCommerce &gt; Stores &gt; New</em>, paste the URL, the consumer key and the secret, choose the warehouse and the pricelist.</li>
+        <li>Press <em>Test connection</em>, then <em>Register webhooks</em> (requires a public HTTPS <code>web.base.url</code>).</li>
+        <li>Enable the scheduled actions you need.</li>
+    </ol>
+    <p style="font-size: 15px;">
+        The full operating manual — setup, all screens, every synchronisation direction,
+        limitations and troubleshooting — is the user guide shipped with the module:
+        <code>rex_woocommerce_connector/doc/USER_GUIDE.md</code>
+        (also in Ukrainian and Russian).
+    </p>
+
+    <!-- Requirements -->
+    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Requirements</h2>
+    <ul style="font-size: 16px;">
+        <li>Odoo 19.0 or 20.0, Community or Enterprise, with <code>sale_management</code>, <code>stock</code>, <code>account</code>, <code>delivery</code> and <code>mail</code>.</li>
+        <li>WooCommerce 3.5 or newer, permalinks enabled and the store served over <strong>HTTPS</strong>: WooCommerce 11 refuses REST credentials over plain HTTP.</li>
+        <li>A WooCommerce REST API key with Read/Write permissions.</li>
+        <li>A public HTTPS address for Odoo if you want webhooks; the polling import works without them.</li>
+        <li>No pip packages beyond <code>requests</code>, which ships with Odoo. No OCA modules.</li>
+    </ul>
+
+    <!-- What is not in 1.0 -->
+    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Deliberately out of scope in 1.0</h2>
+    <ul style="font-size: 16px;">
+        <li>Metafield mapping engine.</li>
+        <li>Coupon lines as separate objects (a line discount preserves the value of a coupon applied to products).</li>
+        <li>Multi-currency orders.</li>
+        <li>Kit and BoM products.</li>
+        <li>Subscriptions, bookings and POS plugins.</li>
+        <li>More than one warehouse per store.</li>
+        <li>Odoo versions older than 19.0.</li>
+    </ul>
+
+    <!-- Support -->
+    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Support</h2>
+    <p style="font-size: 16px;">
+        This is a community project maintained on a best-effort basis. There is
+        <strong>no paid support</strong> and no guaranteed response time. Bug reports
+        and pull requests are welcome. When you open an issue, include the connector
+        version (1.0.0), the Odoo version, the WooCommerce version, the steps to
+        reproduce and the relevant lines of the activity log — with the HTTP status
+        and the WooCommerce error code.
+    </p>
+    <p style="font-size: 16px;">
+        Supported Odoo versions: 19.0 and 20.0.<br/>
+        Project: POLISHCHUK &amp; SONS LTD — <a href="https://rex.cy">https://rex.cy</a> ·
+        <a href="mailto:info@rex.cy">info@rex.cy</a>
+    </p>
+
+    <!-- Licence -->
+    <h2 style="font-size: 24px; margin: 32px 0 10px 0;">Licence</h2>
+    <p style="font-size: 16px;">
+        <strong>GNU Affero General Public License v3.0 or later (AGPL-3.0).</strong>
+        Free for commercial use, modification and redistribution under the terms of
+        the licence; if you run a modified version as a network service, the source
+        of that version must be offered to its users.
+    </p>
+    <p style="font-size: 14px; color: #6b7280;">
+        Copyright (C) 2026 POLISHCHUK &amp; SONS LTD. The full licence text is in the
+        <code>LICENSE</code> file of the distribution.
+    </p>
+
+</section>
+
+</body>
+</html>

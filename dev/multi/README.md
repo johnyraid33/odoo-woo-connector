@@ -1,7 +1,7 @@
 # dev/multi — second, independent WooCommerce store
 
 A **second, fully independent** WooCommerce store for multi-store tests of the
-`woocommerce_connector` Odoo module.
+`rex_woocommerce_connector` Odoo module.
 
 The main verification stack in [`dev/`](../README.md) stays exactly as it
 is (WordPress 7.1 / WooCommerce 11.2.2 / Odoo 20). This stack exists so the

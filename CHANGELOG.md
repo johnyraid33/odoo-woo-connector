@@ -1,12 +1,88 @@
 # Changelog
 
-All notable changes to the WooCommerce Connector module are documented in this
+All notable changes to the Two-way Sync for WooCommerce module are documented in this
 file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
 the project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.3] — unreleased
+
+Release review: an independent code review plus a new acceptance suite that runs
+against a real WooCommerce 11.2.2 store on Odoo 19.0 and 20.0
+(`dev/acceptance/run.sh`, 89 checks per version) and a real webhook delivery from
+WooCommerce. Every defect below was reproduced before it was fixed.
+
+### Changed
+
+* **The module is renamed to `rex_woocommerce_connector`**, displayed as
+  *Two-way Sync for WooCommerce: Catalog, Stock, Orders*. The technical name
+  `woocommerce_connector` is already registered on the Odoo Apps Store by another
+  vendor, so the module could not be published under it. A database that has the
+  old `woocommerce_connector` installed from GitHub needs the old module
+  uninstalled and the new one installed; the stores, mappings and logs are not
+  carried over. Webhook URLs keep the same path (`/woocommerce/webhook/<id>`).
+
+### Fixed
+
+* **Webhooks: every delivery after the first one of a webhook was dropped.**
+  Deliveries were deduplicated on `X-WC-Webhook-ID`, which is the id of the
+  webhook configuration and is the same for every event. The key is now
+  `X-WC-Webhook-Delivery-ID`. Confirmed against a real WooCommerce delivery.
+* **Refunds were never imported automatically.** They depended on a
+  `refund.created` webhook, which WooCommerce does not have (registration failed
+  silently), and nothing else queued them. A refund is now detected when its order
+  is read by the poll or by `order.updated`, as soon as the order is invoiced.
+* **A refund with line items could not be posted.** Credit note lines were
+  written with negative quantities (Odoo refuses a negative credit note) and the
+  tax was counted twice (net line totals were compared with the gross refund
+  amount). A failed refund also left a draft credit note behind.
+* **A refund of a variation credited the wrong variant** (the parent id was
+  resolved before the variation id).
+* **A refunded store order was switched to "cancelled".** The cancellation that
+  came from WooCommerce was pushed back to the store and overwrote `refunded`.
+* **Variation prices were never imported** (writing the price of one variant of a
+  multi-variant template is ignored by Odoo). They are now stored as the extra
+  price of the attribute value for products with one varying attribute.
+* **The catalogue export rewrote products imported from WooCommerce** (HTML
+  description replaced by plain text, a sale price exported as the regular price)
+  and **published the generated shipping and fee service products** in the shop.
+  The export now only writes products owned by Odoo and never exports services.
+  It also no longer stops at the first 100 products and no longer uploads an
+  unchanged image again on every run.
+* **Stock of a variable product.** The parent product was pushed with the first
+  variant's quantity (turning on parent-level stock) and pulled back into that
+  variant, which overwrote its quantity.
+* **Stock oversold by default.** The default *Quantity type* is now *Available*
+  (on hand minus reserved); a negative quantity is sent as 0.
+* **Polls compared the UTC watermark with the site's local time.** Shops west of
+  UTC missed changes. Polls now send `dates_are_gmt=true`.
+* **A failed order or product was lost until it changed again**: the watermark
+  moved on after a failure. A transient failure now keeps the watermark; each
+  order and product is imported in its own savepoint.
+* **One queue batch ran in a single transaction**: a batch rolled back at the end
+  forgot mappings of records already created in WooCommerce. Every job now
+  commits on its own.
+* **A POST could be sent twice** after a read timeout or a gateway error, creating
+  a duplicate product or order note. POST is only retried when the store
+  certainly did not process it (connection never opened, 425, 429, 503).
+* **The webhook save check of WooCommerce was refused with 401**, so saving a
+  webhook in the WordPress admin showed an error. It is now answered with 200.
+* **Guest customers were named after their e-mail address** instead of the
+  billing name.
+* An Odoo tax included in the price could be matched to a WooCommerce rate; the
+  shipping, fee and SKU lookups ignored the store company; an `_` in an e-mail
+  address acted as a wildcard; the status page was readable by portal users;
+  `saas~` version strings broke the compatibility layer.
+
+### Added
+
+* `dev/acceptance/`: the acceptance suite used for this release, runnable on
+  Odoo 19 and 20 against the dev store.
+* Odoo-level tests for refunds, cancellations, webhook deduplication, variation
+  prices, export ownership and variable-product stock (they fail on 1.0.2).
 
 ## [1.0.2] — unreleased
 

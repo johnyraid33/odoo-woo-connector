@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_woocommerce_root" name="WooCommerce"
+              web_icon="rex_woocommerce_connector,static/description/icon.png"
+              sequence="60" groups="rex_woocommerce_connector.group_woocommerce_user"/>
+
+    <menuitem id="menu_woocommerce_stores" name="Stores"
+              parent="menu_woocommerce_root" action="woo_store_action" sequence="10"/>
+
+    <menuitem id="menu_woocommerce_jobs" name="Jobs"
+              parent="menu_woocommerce_root" action="woo_job_action" sequence="20"/>
+
+    <menuitem id="menu_woocommerce_logs" name="Activity log"
+              parent="menu_woocommerce_root" action="woo_log_action" sequence="30"/>
+
+    <menuitem id="menu_woocommerce_webhooks" name="Webhook deliveries"
+              parent="menu_woocommerce_root" action="woo_webhook_action" sequence="40"/>
+</odoo>
