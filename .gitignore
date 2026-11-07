@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Odoo
+*.log
+*.pot~
+
+# Development stack
+dev/.woo_credentials.json
+dev/.env
+dev/volumes/
+dev/data/
+.DS_Store

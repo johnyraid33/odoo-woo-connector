@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="woo_job_view_list" model="ir.ui.view">
+        <field name="name">woo.job.list</field>
+        <field name="model">woo.job</field>
+        <field name="arch" type="xml">
+            <list string="Synchronisation jobs"
+                  decoration-danger="state == 'failed'"
+                  decoration-muted="state == 'done'"
+                  decoration-warning="state == 'pending'">
+                <field name="name"/>
+                <field name="store_id"/>
+                <field name="job_type"/>
+                <field name="state" widget="badge"/>
+                <field name="attempts"/>
+                <field name="next_run"/>
+                <field name="finished_at"/>
+                <field name="duration" widget="float_time"/>
+                <button name="action_retry" type="object" string="Retry"
+                        icon="fa-refresh" invisible="state not in ('failed', 'cancelled')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="woo_job_view_form" model="ir.ui.view">
+        <field name="name">woo.job.form</field>
+        <field name="model">woo.job</field>
+        <field name="arch" type="xml">
+            <form string="Synchronisation job">
+                <header>
+                    <button name="action_retry" type="object" string="Retry"
+                            invisible="state not in ('failed', 'cancelled')"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state not in ('pending', 'failed')"/>
+                    <button name="action_run_now" type="object" string="Run now"
+                            class="btn-primary" invisible="state != 'pending'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="store_id"/>
+                            <field name="job_type"/>
+                            <field name="priority"/>
+                        </group>
+                        <group>
+                            <field name="attempts"/>
+                            <field name="max_attempts"/>
+                            <field name="next_run"/>
+                            <field name="started_at"/>
+                            <field name="finished_at"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Payload">
+                            <field name="payload" readonly="1" widget="ace" options="{'mode': 'json'}"/>
+                        </page>
+                        <page string="Last error">
+                            <field name="last_error" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="woo_job_view_search" model="ir.ui.view">
+        <field name="name">woo.job.search</field>
+        <field name="model">woo.job</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="store_id"/>
+                <field name="job_type"/>
+                <filter name="pending" string="Pending" domain="[('state', '=', 'pending')]"/>
+                <filter name="failed" string="Failed" domain="[('state', '=', 'failed')]"/>
+                <filter name="done" string="Done" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter name="today" string="Today"
+                        domain="[('started_at', '&gt;=', (context_today() - datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"/>
+                <group>
+                    <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                    <filter name="group_type" string="Type" context="{'group_by': 'job_type'}"/>
+                    <filter name="group_store" string="Store" context="{'group_by': 'store_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="woo_job_action" model="ir.actions.act_window">
+        <field name="name">Jobs</field>
+        <field name="res_model">woo.job</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="woo_job_view_search"/>
+    </record>
+</odoo>
