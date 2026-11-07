@@ -1,7 +1,7 @@
 # Local verification stack: WooCommerce ⇄ Odoo
 
 A reproducible, **mock-free** local stack for developing and verifying the
-`woocommerce_connector` Odoo module against a real WooCommerce store:
+`rex_woocommerce_connector` Odoo module against a real WooCommerce store:
 
 | Component | Image / version (verified) | Host port |
 | :--- | :--- | :--- |
@@ -222,7 +222,7 @@ still present, WordPress/Odoo answered 200, and the REST key in
 # then run the module's own tests (example: a dedicated DB + --test-enable):
 docker compose exec -T odoo odoo -c /etc/odoo/odoo.conf \
   --db_host=odoo-db --db_port=5432 --db_user=odoo --db_password=odoo \
-  -d odoo -u woocommerce_connector --test-enable --stop-after-init --no-http
+  -d odoo -u rex_woocommerce_connector --test-enable --stop-after-init --no-http
 ```
 
 The seeded data is deterministic, so order totals (`122.36` and `17.85` EUR,
@@ -234,7 +234,7 @@ The seeded data is deterministic, so order totals (`122.36` and `17.85` EUR,
 ## Odoo specifics
 
 The module directory is bind-mounted read-write at
-`/mnt/extra-addons/woocommerce_connector`, and `odoo.conf` sets
+`/mnt/extra-addons/rex_woocommerce_connector`, and `odoo.conf` sets
 
 ```ini
 addons_path = /usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons
@@ -260,7 +260,7 @@ Create the database and install the module once it is ready (the stack does
 
 docker compose exec -T odoo odoo -c /etc/odoo/odoo.conf \
   --db_host=odoo-db --db_port=5432 --db_user=odoo --db_password=odoo \
-  -d odoo -i woocommerce_connector --stop-after-init --no-http
+  -d odoo -i rex_woocommerce_connector --stop-after-init --no-http
 ```
 
 After editing module code:
@@ -270,7 +270,7 @@ After editing module code:
 # or upgrade the module modules:
 docker compose exec -T odoo odoo -c /etc/odoo/odoo.conf \
   --db_host=odoo-db --db_port=5432 --db_user=odoo --db_password=odoo \
-  -d odoo -u woocommerce_connector --stop-after-init --no-http
+  -d odoo -u rex_woocommerce_connector --stop-after-init --no-http
 ```
 
 Odoo's database manager master password is `admin` (set in `odoo.conf`).

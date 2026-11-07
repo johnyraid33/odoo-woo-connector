@@ -38,7 +38,8 @@ duplicated or lost when the site has no traffic.
 Webhooks are therefore a latency optimisation, never the source of truth:
 
 * the endpoint verifies X-WC-Webhook-Signature (base64 HMAC-SHA256 of the raw body),
-  deduplicates by X-WC-Webhook-ID and answers 200 immediately;
+  deduplicates by X-WC-Webhook-Delivery-ID (X-WC-Webhook-ID is the webhook
+  configuration, identical for every delivery) and answers 200 immediately;
 * the payload is queued and processed by the job worker;
 * a scheduled reconciliation poll always runs with a watermark (date_modified_gmt and
   id ascending) and repairs anything the webhook missed.
