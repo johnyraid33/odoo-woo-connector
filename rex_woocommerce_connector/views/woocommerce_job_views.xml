@@ -15,7 +15,7 @@
                 <field name="attempts"/>
                 <field name="next_run"/>
                 <field name="finished_at"/>
-                <field name="duration" widget="float_time"/>
+                <field name="duration" digits="[16, 1]"/>
                 <button name="action_retry" type="object" string="Retry"
                         icon="fa-refresh" invisible="state not in ('failed', 'cancelled')"/>
             </list>

@@ -77,8 +77,14 @@ WooCommerce. Every defect below was reproduced before it was fixed.
   address acted as a wildcard; the status page was readable by portal users;
   `saas~` version strings broke the compatibility layer.
 
+* Order and credit note lines no longer repeat the product name when the
+  WooCommerce name is the same; the job duration is shown in seconds, and the
+  activity log hides the empty HTTP status and error code columns by default.
+
 ### Added
 
+* A new Apps Store page (tabs, FAQ, screenshots of a demo shop), cover image and
+  app icon, generated from `dev/store/`.
 * `dev/acceptance/`: the acceptance suite used for this release, runnable on
   Odoo 19 and 20 against the dev store.
 * Odoo-level tests for refunds, cancellations, webhook deduplication, variation

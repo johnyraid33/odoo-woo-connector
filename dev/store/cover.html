@@ -1,0 +1,74 @@
+<!doctype html>
+<!--
+  Source of rex_woocommerce_connector/static/description/img/cover.png (1600x900).
+  Render: python3 dev/store/render_assets.py
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1600px; height: 900px; overflow: hidden; }
+  body {
+    font-family: "Inter", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    color: #fff; position: relative;
+    background:
+      radial-gradient(ellipse 900px 620px at 80% 58%, rgba(127, 84, 179, 0.42), transparent 70%),
+      radial-gradient(ellipse 700px 500px at 6% 8%, rgba(36, 86, 96, 0.38), transparent 70%),
+      #0c0b17;
+  }
+  body::before {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .eyebrow { position: absolute; left: 80px; top: 70px; font-size: 15px; letter-spacing: 4.2px;
+             color: #aaa6c4; text-transform: uppercase; }
+  h1 { position: absolute; left: 76px; top: 112px; font-size: 80px; line-height: 76px;
+       font-weight: 800; letter-spacing: -2.4px; }
+  h1 .accent { background: linear-gradient(90deg, #d2b8ff 0%, #b49cf0 45%, #8fe3cf 100%);
+               -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead { position: absolute; left: 80px; top: 362px; width: 590px; font-size: 25px;
+          line-height: 34px; color: #cbc8da; }
+  ul { position: absolute; left: 80px; top: 468px; list-style: none; }
+  li { display: flex; align-items: center; height: 40px; font-size: 20px; color: #ebe9f3; }
+  li i { width: 26px; height: 26px; border-radius: 50%; margin-right: 13px; border: 1px solid #3f7d73;
+         background: rgba(54, 120, 108, 0.25); display: inline-flex; align-items: center;
+         justify-content: center; font-style: normal; font-size: 14px; color: #8fe3cf; }
+  .pills { position: absolute; left: 80px; top: 793px; display: flex; gap: 12px; }
+  .pill { height: 37px; padding: 0 16px; border-radius: 19px; font-size: 16px; display: inline-flex;
+          align-items: center; color: #ebe9f3; border: 1px solid rgba(255,255,255,0.18);
+          background: rgba(255,255,255,0.05); }
+  .foot { position: absolute; right: 120px; top: 803px; font-size: 14px; letter-spacing: 2.4px;
+          color: #aaa6c4; text-transform: uppercase; }
+  .stage { position: absolute; left: 730px; top: 130px; width: 790px; perspective: 1900px; }
+  .shot { width: 790px; border-radius: 16px; overflow: hidden; background: #fff;
+          transform: rotateY(-11deg) rotateX(5deg) rotateZ(-1.6deg); transform-origin: left center;
+          box-shadow: 0 40px 90px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08); }
+  .shot img { display: block; width: 100%; height: 470px; object-fit: cover; object-position: top left; }
+  .badge { position: absolute; height: 42px; padding: 0 18px; border-radius: 9px; font-size: 17px;
+           font-weight: 600; display: inline-flex; align-items: center; white-space: nowrap; box-shadow: 0 12px 30px rgba(0,0,0,0.45); }
+  .b1 { left: 1360px; top: 92px; background: #123b2a; color: #8be3b0; border: 1px solid #2f7a55; }
+  .b2 { left: 1300px; top: 430px; background: #2a1748; color: #d2b8ff; border: 1px solid #6a4fb0; }
+  .b3 { left: 712px; top: 590px; background: #13234a; color: #a9c6ff; border: 1px solid #3c5da3; }
+</style>
+</head>
+<body>
+  <div class="eyebrow">POLISHCHUK &amp; SONS LTD &middot; Odoo module</div>
+  <h1>Two-way<br>Sync for<br><span class="accent">WooCommerce</span></h1>
+  <div class="lead">Catalog, stock, orders, refunds and tracking numbers between your shop and Odoo.</div>
+  <ul>
+    <li><i>&#10003;</i>Orders with taxes, coupons and shipping, to the cent</li>
+    <li><i>&#10003;</i>Refunds become credit notes automatically</li>
+    <li><i>&#10003;</i>Stock pushed without overselling</li>
+  </ul>
+  <div class="pills"><span class="pill">Odoo 19 &amp; 20</span><span class="pill">AGPL-3</span><span class="pill">Free</span></div>
+  <div class="foot">REST API &middot; Webhooks &middot; Queue</div>
+  <div class="stage"><div class="shot"><img src="../../rex_woocommerce_connector/static/description/img/02_sale_order.png" alt=""></div></div>
+  <div class="badge b1">Order imported</div>
+  <div class="badge b2">Refund &rarr; credit note</div>
+  <div class="badge b3">Tracking sent</div>
+</body>
+</html>
